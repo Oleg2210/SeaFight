@@ -3,24 +3,15 @@
 #include <QPen>
 #include <QPainterPath>
 #include <QFont>
-#include <QPushButton>
-#include <QLabel>
+#include <QFontMetrics>
+#include <stdexcept>
 #include <QDebug>
-#include <QApplication>
 
-FightField::FightField(int field_height, int field_width, int start_left,
-                       int start_top, int column_width, int column_height, QWidget *parent):
-    QWidget(parent)
+FightField::FightField(int padding, int column_size, QWidget *parent):
+    _padding(padding), _column_size(column_size), QWidget(parent)
 {
-//    this->_field_height = field_height;
-//    this->_field_width = field_width;
-//    this->_start_left = start_left;
-//    this->_start_top = start_top;
-//    this->_column_width = column_width;
-//    this->_column_height = column_height;
-
-    qDebug()<<field_width;
-    //this->setFixedSize(field_width, field_height);
+    int size = _padding*2 + getFieldSize();
+    this->setFixedSize(size, size);
 }
 
 FightField::~FightField(){
@@ -28,13 +19,13 @@ FightField::~FightField(){
 }
 
 void FightField::paintEvent(QPaintEvent *event){
-    //QPainter painter(this);
-    //QPen pen(Qt::black);
-    //pen.setWidth(1);
-    //painter.setPen(pen);
+    QPainter painter(this);
+    QPen pen(Qt::black);
+    pen.setWidth(1);
+    painter.setPen(pen);
 
-    //drawFieldLabels(&painter);
-    //drawFieldButtons(&painter);
+    drawFieldLabels(painter);
+    drawFieldButtons(painter);
 
     QWidget::paintEvent(event);
 }
@@ -44,43 +35,55 @@ void FightField::mousePressEvent(QMouseEvent *event){
     QWidget::mousePressEvent(event);
 }
 
-void FightField::drawFieldLabels(QPainter *painter){
+void FightField::drawFieldLabels(QPainter &painter){
+    QFontMetrics font_metric(painter.font());
+    drawFieldChars(painter, font_metric);
+    drawFieldNumbers(painter, font_metric);
+}
+
+void FightField::drawFieldButtons(QPainter &painter){
+    QPainterPath rect_path;
+    rect_path.addRect(this->_padding, this->_padding, getFieldSize(), getFieldSize());
+    painter.fillPath(rect_path, Qt::white);
+    painter.drawPath(rect_path);
+
+    int edge = getFieldSize() + this->_padding;
+
+    for(int i=0; i <= FIELD_DIMENSION; i++){
+        int line_size = i*this->_column_size + this->_padding;
+        painter.drawLine(line_size, this->_padding, line_size, edge);
+        painter.drawLine(this->_padding, line_size, edge, line_size);
+    }
+}
+
+void FightField::drawFieldChars(QPainter &painter, const QFontMetrics &font_metric){
     QString characters = "АБВГДЕЁЖЗИ";
     auto iter = characters.begin();
-
     int i = 0;
+
     for(iter, i; iter != characters.end(); iter++, i++){
-        int left_position = i*this->_column_width + this->_start_left;
-        painter->drawText(left_position, this->_start_top, *iter);
-    }
+        int top = this->_padding - font_metric.ascent();
+        int left = this->_column_size*i + this->_padding;
+        int left_offset = (this->_column_size - font_metric.horizontalAdvance(*iter))/2;
 
-    for(i = 1; i <= field_dimension; i++){
-        int top_position = i*this->_column_height + this->_start_top;
-        painter->drawText(this->_start_left - this->_column_width, top_position, QString::number(i));
+        if((left_offset <= 0) || (top <= 0))
+            throw std::range_error(CELL_SIZE_ERROR);
+
+        painter.drawText(left + left_offset, top, *iter);
     }
 }
 
-void FightField::drawFieldButtons(QPainter *painter){
-    int down_position = this->_column_height*field_dimension + this->_start_top;
-    int right_position = this->_column_width*field_dimension + this->_start_left;
-    int field_width = right_position - this->_start_left;
-    int field_height = down_position - this->_start_top;
+void FightField::drawFieldNumbers(QPainter &painter, const QFontMetrics &font_metric){
+    for(int i = 1; i <= FIELD_DIMENSION; i++){
+        int left = (this->_padding - font_metric.horizontalAdvance(QString::number(i)))/2;
+        int top = i*this->_column_size + this->_padding;
+        int top_offset = (this->_column_size - font_metric.ascent())/2;
 
-    QPainterPath rect_path;
-    rect_path.addRect(this->_start_left, this->_start_top, field_width, field_height);
-    painter->fillPath(rect_path, Qt::white);
-    painter->drawPath(rect_path);
+        if((top_offset <= 0) || (left <= 0))
+            throw std::range_error(CELL_SIZE_ERROR);
 
-    int i=0;
-    for(i; i <= field_dimension; i++){
-        int left_position = i*this->_column_width + this->_start_left;
-        painter->drawLine(left_position, this->_start_top, left_position, down_position);
+        painter.drawText(left, top - top_offset, QString::number(i));
     }
-
-    for(i = 0; i <= field_dimension; i++){
-        int top_position = i*this->_column_height + this->_start_top;
-        painter->drawLine(this->_start_left, top_position, right_position, top_position);
-    }
-
 }
 
+std::string FightField::CELL_SIZE_ERROR = "cell size is too small"; //прогуглить, где лучше располагать
