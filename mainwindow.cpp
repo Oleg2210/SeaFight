@@ -7,8 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    FightField *fight_field = new FightField;
-    this->setCentralWidget(fight_field);
 }
 
 MainWindow::~MainWindow()

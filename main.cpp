@@ -1,4 +1,3 @@
-#include "mainwindow.h"
 #include "fightfield.h"
 #include <QApplication>
 #include <QDebug>
