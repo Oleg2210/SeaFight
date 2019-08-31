@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
     QVBoxLayout *lay =new QVBoxLayout;
     wdg->setLayout(lay);
     QPushButton *btn = new QPushButton("hello bitches");
-    FightField *fight_field = new FightField(20, 30);
+    QFont font("helvetica", 12);
+    FightField *fight_field = new FightField(8, 30, font);
     lay->addWidget(btn);
     lay->addWidget(fight_field);
 
