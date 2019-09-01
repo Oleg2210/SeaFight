@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         fightfield.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        seafightfied.cpp
 
 HEADERS += \
         fightfield.h \
-        mainwindow.h
+        mainwindow.h \
+        seafightfied.h
 
 FORMS += \
         mainwindow.ui

@@ -22,14 +22,17 @@ protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
 
-// реализовать слот, принимающий сигнал нажатия на кнопку, и вызывающий новый сигнал с координатами кнопки.
-private:
+    int getCellNumber(int x, int y);
+    QRect getRect(int cell_number);
+
     static const QString FIELD_LETTERS;
     static const std::string CELL_SIZE_ERROR;
+    static const int LINE_WIDTH = 1;
 
     int _padding;
     int _column_size;
     QFont _font;
+    QRect *rectum;
 
     inline int getFieldSize() {
         return _column_size*FIELD_LETTERS.length();
@@ -39,6 +42,7 @@ private:
         return _padding + _column_size;
     }
 
+private:
     void drawFieldLabels(QPainter &painter);
     void drawFieldButtons(QPainter &painter);
     void checkFontToSizeRatio(const QFontMetrics &font_metric);
