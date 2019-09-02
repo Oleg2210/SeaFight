@@ -6,20 +6,20 @@
 #include <QFont>
 #include <string>
 
-class QFontMetrics;
-class QPainter;
-
 class FightField: public QWidget
 {
     Q_OBJECT
 
 public:
-    FightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr); // добавить цвета
+    FightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr);
     ~FightField();
-// нужно реализовать функции для изменения внешнего вида кнопки(промах, попадание, деактивация клеток вокруг убитого коробля)
+
+signals:
+    void cellPressed(int cell_number);
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
 
     int getCellNumber(int x, int y);
@@ -32,7 +32,6 @@ protected:
     int _padding;
     int _column_size;
     QFont _font;
-    QRect *rectum;
 
     inline int getFieldSize() {
         return _column_size*FIELD_LETTERS.length();
@@ -46,8 +45,8 @@ private:
     void drawFieldLabels(QPainter &painter);
     void drawFieldButtons(QPainter &painter);
     void checkFontToSizeRatio(const QFontMetrics &font_metric);
-    void drawFieldLetters(QPainter &painter, const QFontMetrics &font_metric);
-    void drawFieldNumbers(QPainter &painter, const QFontMetrics &font_metric);
+    void drawFieldLetters(QPainter &painter);
+    void drawFieldNumbers(QPainter &painter);
 
 };
 

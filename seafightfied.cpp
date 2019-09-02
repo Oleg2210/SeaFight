@@ -1,6 +1,11 @@
-#include "seafightfied.h"
+#include "seafightfield.h"
 
-SeaFightFied::SeaFightFied()
+SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
+    FightField (padding, column_size, font, parent)
 {
+
+}
+
+SeaFightField::~SeaFightField(){
 
 }

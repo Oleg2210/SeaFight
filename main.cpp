@@ -1,4 +1,4 @@
-#include "fightfield.h"
+#include "seafightfield.h"
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     wdg->setLayout(lay);
     QPushButton *btn = new QPushButton("hello bitches");
     QFont font("helvetica", 12);
-    FightField *fight_field = new FightField(8, 30, font);
+    SeaFightField *fight_field = new SeaFightField(8, 30, font);
     lay->addWidget(btn);
     lay->addWidget(fight_field);
 

@@ -33,7 +33,7 @@ SOURCES += \
 HEADERS += \
         fightfield.h \
         mainwindow.h \
-        seafightfied.h
+        seafightfield.h
 
 FORMS += \
         mainwindow.ui
