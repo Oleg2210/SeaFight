@@ -37,20 +37,6 @@ void FightField::paintEvent(QPaintEvent *event){
     QWidget::paintEvent(event);
 }
 
-void FightField::mouseMoveEvent(QMouseEvent *event){
-    int cell_number = getCellNumber(event->x(), event->y());
-    qDebug()<< cell_number;
-    repaint();
-}
-
-void FightField::mousePressEvent(QMouseEvent *event){
-    if(event->button() == Qt::LeftButton){
-        int cell_number = getCellNumber(event->x(), event->y());
-        emit cellPressed(cell_number);
-    }
-    QWidget::mousePressEvent(event);
-}
-
 void FightField::drawFieldLabels(QPainter &painter){
     QFontMetrics font_metric(painter.font());
     checkFontToSizeRatio(font_metric);

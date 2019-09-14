@@ -28,7 +28,7 @@ SOURCES += \
         fightfield.cpp \
         main.cpp \
         mainwindow.cpp \
-        seafightfied.cpp
+        seafightfield.cpp
 
 HEADERS += \
         fightfield.h \

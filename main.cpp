@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     QPushButton *btn = new QPushButton("hello bitches");
     QFont font("helvetica", 12);
     SeaFightField *fight_field = new SeaFightField(8, 30, font);
+    fight_field->highlight_cell(true);
     lay->addWidget(btn);
     lay->addWidget(fight_field);
 

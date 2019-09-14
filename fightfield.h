@@ -14,13 +14,8 @@ public:
     FightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr);
     ~FightField();
 
-signals:
-    void cellPressed(int cell_number);
-
 protected:
     void paintEvent(QPaintEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
 
     int getCellNumber(int x, int y);
     QRect getRect(int cell_number);
