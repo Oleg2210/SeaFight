@@ -7,10 +7,19 @@
 #include <QFont>
 #include <QDebug>
 
+
 SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _cell_crossed(0), _states_of_cells()
 {
     _states_of_cells[1] = CELL_WOUND;
+    _states_of_cells[2] = CELL_WOUND;
+    _states_of_cells[3] = CELL_MISS;
+    _states_of_cells[11] = CELL_MISS;
+    _states_of_cells[12] = CELL_MISS;
+    _states_of_cells[13] = CELL_MISS;
+
+    _states_of_cells[77] = CELL_SHIP;
+    _states_of_cells[100] = CELL_MISS;
 }
 
 SeaFightField::~SeaFightField(){
@@ -19,12 +28,14 @@ SeaFightField::~SeaFightField(){
 void SeaFightField::paintEvent(QPaintEvent *event){
     FightField::paintEvent(event);
     QPainter painter(this);
-    draw_cells(painter);
+    drawCells(painter);
 
     if(_crossed_cell_highlighting && _cell_crossed){
-        QRect highlight_rect = getRect(_cell_crossed);
-        highlight_cell(painter, highlight_rect);
-        _cell_crossed = 0;
+        if(_states_of_cells.find(_cell_crossed) == _states_of_cells.end()){
+            QRect highlight_rect = getRect(_cell_crossed);
+            highlightCell(painter, highlight_rect);
+            _cell_crossed = 0;
+        }
     }
 }
 
@@ -45,26 +56,35 @@ void SeaFightField::mousePressEvent(QMouseEvent *event){
     QWidget::mousePressEvent(event);
 }
 
-void SeaFightField::highlight_cell(QPainter &painter, QRect rect){
-    QPainterPath hl_path;
-    hl_path.addRect(rect);
-    painter.fillPath(hl_path, Qt::red);
-    painter.drawPath(hl_path);
-}
-
-void SeaFightField::draw_cells(QPainter &painter){
+void SeaFightField::drawCells(QPainter &painter){
     for(auto iter = _states_of_cells.begin(); iter != _states_of_cells.end(); iter++){
         int cell_number = iter.key();
         QRect rect = getRect(cell_number);
         int cell_state = iter.value();
 
-        if(cell_state == CELL_WOUND){
-            draw_wound(painter, rect);
+        switch(cell_state){
+            case CELL_WOUND: drawWound(painter, rect); break;
+            case CELL_MISS: drawMiss(painter, rect); break;
+            case CELL_SHIP: drawShip(painter, rect); break;
         }
     }
 }
 
-void SeaFightField::draw_wound(QPainter &painter, QRect rect){
+void SeaFightField::highlightCell(QPainter &painter, QRect rect){
+    //drawRect(painter, rect, QColor("#FF4500"));
+    int x = rect.x() + 1;
+    int y = rect.y() + 1;
+    int size = rect.width() - 1;
+    rect = QRect(x, y, size, size);
+
+    painter.save();
+    QPen pen = QPen(QColor("#FF4500"), 2);
+    painter.setPen(pen);
+    painter.drawRect(rect);
+    painter.restore();
+}
+
+void SeaFightField::drawWound(QPainter &painter, QRect rect){
     int left_top_x = rect.x();
     int left_top_y = rect.y();
     int right_top_x = left_top_x + _column_size;
@@ -76,9 +96,27 @@ void SeaFightField::draw_wound(QPainter &painter, QRect rect){
     int right_bottom_y = right_top_y + _column_size;
 
     painter.save();
-    painter.setPen(QPen(Qt::red, 1, Qt::SolidLine));
-    painter.drawLine(left_top_x, left_top_y, right_bottom_x, right_bottom_y);
-    painter.drawLine(right_top_x, right_top_y, left_bottom_x, left_bottom_y);
+    painter.setPen(QPen(QColor("#FF4500"), 2, Qt::SolidLine, Qt::RoundCap, Qt::SvgMiterJoin));
+    painter.drawLine(left_top_x + 1, left_top_y + 1, right_bottom_x - 1, right_bottom_y - 1);
+    painter.drawLine(right_top_x - 1, right_top_y + 1, left_bottom_x + 1, left_bottom_y - 1);
     painter.restore();
+}
 
+void SeaFightField::drawMiss(QPainter &painter, QRect rect){
+    int center_x = rect.x() + _column_size / 2;
+    int center_y = rect.y() + _column_size / 2;
+    int small_size = _column_size / 4;
+    int small_rect_x = center_x - small_size / 2;
+    int small_rect_y = center_y - small_size / 2;
+    QRect small_rect = QRect(small_rect_x, small_rect_y, small_size, small_size);
+
+    drawRect(painter, rect, QColor("#B8B8B8"));
+    painter.save();
+    painter.setBrush(QColor("#000000"));
+    painter.drawEllipse(small_rect);
+    painter.restore();
+}
+
+void SeaFightField::drawShip(QPainter &painter, QRect rect){
+    drawRect(painter, rect, QColor("#20B2AA"));
 }

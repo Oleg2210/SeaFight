@@ -45,10 +45,8 @@ void FightField::drawFieldLabels(QPainter &painter){
 }
 
 void FightField::drawFieldButtons(QPainter &painter){
-    QPainterPath field_path;
-    field_path.addRect(getOffsetSize(), getOffsetSize(), getFieldSize(), getFieldSize());
-    painter.fillPath(field_path, Qt::white);
-    painter.drawPath(field_path);
+    QRect rect(getOffsetSize(), getOffsetSize(), getFieldSize(), getFieldSize());
+    drawRect(painter, rect, Qt::white);
 
     int edge = getOffsetSize() + getFieldSize();
     for(int i=1; i < FIELD_LETTERS.length(); i++){
@@ -108,4 +106,11 @@ QRect FightField::getRect(int cell_number){
     int x = getOffsetSize() + (cell_number % FIELD_LETTERS.length()) * this->_column_size;
     QRect rect(x, y, this->_column_size, this->_column_size);
     return rect;
+}
+
+void FightField::drawRect(QPainter &painter, QRect rect, QColor color){
+    QPainterPath field_path;
+    field_path.addRect(rect);
+    painter.fillPath(field_path, color);
+    painter.drawPath(field_path);
 }

@@ -19,6 +19,7 @@ protected:
 
     int getCellNumber(int x, int y);
     QRect getRect(int cell_number);
+    void drawRect(QPainter &painter, QRect rect, QColor color);
 
     static const QString FIELD_LETTERS;
     static const std::string CELL_SIZE_ERROR;

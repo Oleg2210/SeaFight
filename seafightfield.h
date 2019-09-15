@@ -32,9 +32,11 @@ private:
     int _cell_crossed;
     QHash<int, int> _states_of_cells;
 
-    void highlight_cell(QPainter &painter, QRect rect);
-    void draw_cells(QPainter &painter);
-    void draw_wound(QPainter &painter, QRect rect);
+    void highlightCell(QPainter &painter, QRect rect);
+    void drawCells(QPainter &painter);
+    void drawWound(QPainter &painter, QRect rect);
+    void drawMiss(QPainter &painter, QRect rect);
+    void drawShip(QPainter &painter, QRect rect);
 };
 
 #endif // SEAFIGHTFIED_H
