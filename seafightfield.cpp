@@ -34,7 +34,7 @@ void SeaFightField::paintEvent(QPaintEvent *event){
         if(_states_of_cells.find(_cell_crossed) == _states_of_cells.end()){
             QRect highlight_rect = getRect(_cell_crossed);
             highlightCell(painter, highlight_rect);
-            _cell_crossed = 0;
+            _cell_crossed = OUT_OF_FIELD;
         }
     }
 }
@@ -43,7 +43,9 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
     if(_crossed_cell_highlighting){
         int cell_number = getCellNumber(event->x(), event->y());
         _cell_crossed = cell_number;
-        update();
+        if(_cell_crossed != OUT_OF_FIELD){
+            update();
+        }
     }
     QWidget::mouseMoveEvent(event);
 }
@@ -51,7 +53,9 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
 void SeaFightField::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
-        emit cellPressed(cell_number);
+        if(cell_number != OUT_OF_FIELD){
+            emit cellPressed(cell_number);
+        }
     }
     QWidget::mousePressEvent(event);
 }
@@ -71,20 +75,20 @@ void SeaFightField::drawCells(QPainter &painter){
 }
 
 void SeaFightField::highlightCell(QPainter &painter, QRect rect){
-    //drawRect(painter, rect, QColor("#FF4500"));
-    int x = rect.x() + 1;
-    int y = rect.y() + 1;
-    int size = rect.width() - 1;
+    int x = rect.x() + PEN_IMPERCISION;
+    int y = rect.y() + PEN_IMPERCISION;
+    int size = rect.width() - PEN_IMPERCISION;
     rect = QRect(x, y, size, size);
 
     painter.save();
-    QPen pen = QPen(QColor("#FF4500"), 2);
+    QPen pen = QPen(QColor("#FF4500"), PEN_WIDTH);
     painter.setPen(pen);
     painter.drawRect(rect);
     painter.restore();
 }
 
 void SeaFightField::drawWound(QPainter &painter, QRect rect){
+    const int p_imp = PEN_IMPERCISION;
     int left_top_x = rect.x();
     int left_top_y = rect.y();
     int right_top_x = left_top_x + _column_size;
@@ -96,9 +100,9 @@ void SeaFightField::drawWound(QPainter &painter, QRect rect){
     int right_bottom_y = right_top_y + _column_size;
 
     painter.save();
-    painter.setPen(QPen(QColor("#FF4500"), 2, Qt::SolidLine, Qt::RoundCap, Qt::SvgMiterJoin));
-    painter.drawLine(left_top_x + 1, left_top_y + 1, right_bottom_x - 1, right_bottom_y - 1);
-    painter.drawLine(right_top_x - 1, right_top_y + 1, left_bottom_x + 1, left_bottom_y - 1);
+    painter.setPen(QPen(QColor("#FF4500"), PEN_WIDTH, Qt::SolidLine, Qt::RoundCap, Qt::SvgMiterJoin));
+    painter.drawLine(left_top_x + p_imp, left_top_y + p_imp, right_bottom_x - p_imp, right_bottom_y - p_imp);
+    painter.drawLine(right_top_x - p_imp, right_top_y + p_imp, left_bottom_x + p_imp, left_bottom_y - p_imp);
     painter.restore();
 }
 

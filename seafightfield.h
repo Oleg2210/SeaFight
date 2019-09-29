@@ -8,9 +8,12 @@ class SeaFightField: public FightField
     Q_OBJECT
 
 public:
-    static const int CELL_WOUND = 0;
-    static const int CELL_MISS = 1;
-    static const int CELL_SHIP = 2;
+    static const int CELL_WOUND = 1;
+    static const int CELL_MISS = 2;
+    static const int CELL_SHIP = 3;
+
+    static const int PEN_WIDTH = 2;
+    static const int PEN_IMPERCISION = 1;
 
     SeaFightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr);
     ~SeaFightField();

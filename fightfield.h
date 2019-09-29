@@ -23,14 +23,16 @@ protected:
 
     static const QString FIELD_LETTERS;
     static const std::string CELL_SIZE_ERROR;
+    static const int CELLS_PER_SIDE;
     static const int LINE_WIDTH = 1;
+    static const int OUT_OF_FIELD = 0;
 
     int _padding;
     int _column_size;
     QFont _font;
 
     inline int getFieldSize() {
-        return _column_size*FIELD_LETTERS.length();
+        return _column_size * CELLS_PER_SIDE;
     }
 
     inline int getOffsetSize(){

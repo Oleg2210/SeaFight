@@ -10,13 +10,15 @@
 #include <QDebug>
 
 const QString FightField::FIELD_LETTERS = "АБВГДЕЁЖЗИ";
+const int FightField::CELLS_PER_SIDE = FightField::FIELD_LETTERS.length();
 const std::string FightField::CELL_SIZE_ERROR = "cell size is too small";
 
 FightField::FightField(int padding, int column_size, QFont font, QWidget *parent):
      QWidget(parent), _padding(padding), _column_size(column_size), _font(font)
 {
     setMouseTracking(true);
-    int size = getOffsetSize()*2 + getFieldSize();
+    int offset_numbers = 2;
+    int size = getOffsetSize()*offset_numbers + getFieldSize();
     this->setFixedSize(size, size);
 }
 
@@ -49,7 +51,7 @@ void FightField::drawFieldButtons(QPainter &painter){
     drawRect(painter, rect, Qt::white);
 
     int edge = getOffsetSize() + getFieldSize();
-    for(int i=1; i < FIELD_LETTERS.length(); i++){
+    for(int i=1; i < CELLS_PER_SIDE; i++){
         int indent = getOffsetSize() + i*this->_column_size;
         painter.drawLine(indent, getOffsetSize(), indent, edge);
         painter.drawLine(getOffsetSize(), indent, edge, indent);
@@ -75,7 +77,7 @@ void FightField::drawFieldLetters(QPainter &painter){
 }
 
 void FightField::drawFieldNumbers(QPainter &painter){
-    for(int i=0; i < FIELD_LETTERS.length(); i++){
+    for(int i=0; i < CELLS_PER_SIDE; i++){
         int top = getOffsetSize() + this->_column_size*i;
         QRect rect(this->_padding, top, this->_column_size, this->_column_size);
         painter.drawText(rect, Qt::AlignCenter, QString::number(i + 1));
@@ -86,24 +88,23 @@ int FightField::getCellNumber(int x, int y){
     int start = getOffsetSize();
     int edge = getOffsetSize() + getFieldSize();
     if((x <= start || y <= start) || (x > edge || y > edge))
-        return 0;
+        return OUT_OF_FIELD;
 
     x -= getOffsetSize() + LINE_WIDTH;
     y -= getOffsetSize() + LINE_WIDTH;
 
-    int number_of_cell = (y / this->_column_size) * FIELD_LETTERS.length();
+    int number_of_cell = (y / this->_column_size) * CELLS_PER_SIDE;
     number_of_cell += (x / this->_column_size) + 1;
     return number_of_cell;
 }
 
 QRect FightField::getRect(int cell_number){
-    if((cell_number <= 0) || cell_number > FIELD_LETTERS.length()*FIELD_LETTERS.length()){
-        qDebug()<<"i am here";
-        throw std::runtime_error("");
+    if((cell_number <= OUT_OF_FIELD) || cell_number > CELLS_PER_SIDE*CELLS_PER_SIDE){
+        throw std::runtime_error("cell is out");
     }
     cell_number -= 1;
-    int y = getOffsetSize() + (cell_number / FIELD_LETTERS.length()) * this->_column_size;
-    int x = getOffsetSize() + (cell_number % FIELD_LETTERS.length()) * this->_column_size;
+    int y = getOffsetSize() + (cell_number / CELLS_PER_SIDE) * this->_column_size;
+    int x = getOffsetSize() + (cell_number % CELLS_PER_SIDE) * this->_column_size;
     QRect rect(x, y, this->_column_size, this->_column_size);
     return rect;
 }
