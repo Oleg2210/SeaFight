@@ -22,17 +22,24 @@ public:
         _crossed_cell_highlighting = hl_status;
     }
 
+    inline void drag_ship(bool drag_status){
+        _ship_dragging = drag_status;
+    }
+
 signals:
-    void cellPressed(int cell_number);
+    void cellPressed(int cell_number); // rename to hit, drag i.e.
 
 protected:
     void paintEvent(QPaintEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     bool _crossed_cell_highlighting;
+    bool _ship_dragging;
     int _cell_crossed;
+    int _cell_dragged;
     QHash<int, int> _states_of_cells;
 
     void highlightCell(QPainter &painter, QRect rect);

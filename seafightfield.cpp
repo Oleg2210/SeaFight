@@ -60,6 +60,10 @@ void SeaFightField::mousePressEvent(QMouseEvent *event){
     QWidget::mousePressEvent(event);
 }
 
+void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
+    ;
+}
+
 void SeaFightField::drawCells(QPainter &painter){
     for(auto iter = _states_of_cells.begin(); iter != _states_of_cells.end(); iter++){
         int cell_number = iter.key();
