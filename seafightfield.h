@@ -11,6 +11,7 @@ public:
     static const int CELL_WOUND = 1;
     static const int CELL_MISS = 2;
     static const int CELL_SHIP = 3;
+    static const int CELL_GHOST = 4;
 
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
@@ -40,8 +41,10 @@ private:
     bool _ship_dragging;
     int _cell_crossed;
     int _cell_dragged;
+    int _cell_ghost;
     QHash<int, int> _states_of_cells;
 
+    void clearGhostShips();
     void highlightCell(QPainter &painter, QRect rect);
     void drawCells(QPainter &painter);
     void drawWound(QPainter &painter, QRect rect);

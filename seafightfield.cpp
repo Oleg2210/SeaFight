@@ -9,7 +9,8 @@
 
 
 SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
-    FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _cell_crossed(0), _states_of_cells()
+    FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _cell_crossed(OUT_OF_FIELD),
+    _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
     _states_of_cells[1] = CELL_WOUND;
     _states_of_cells[2] = CELL_WOUND;
@@ -29,6 +30,9 @@ void SeaFightField::paintEvent(QPaintEvent *event){
     FightField::paintEvent(event);
     QPainter painter(this);
     drawCells(painter);
+    _states_of_cells.remove(_cell_ghost);
+    _cell_ghost = OUT_OF_FIELD;
+//    clearGhostShips();
 
     if(_crossed_cell_highlighting && _cell_crossed){
         if(_states_of_cells.find(_cell_crossed) == _states_of_cells.end()){
@@ -40,6 +44,7 @@ void SeaFightField::paintEvent(QPaintEvent *event){
 }
 
 void SeaFightField::mouseMoveEvent(QMouseEvent *event){
+    qDebug()<<"move";
     if(_crossed_cell_highlighting){
         int cell_number = getCellNumber(event->x(), event->y());
         _cell_crossed = cell_number;
@@ -47,21 +52,62 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
             update();
         }
     }
+    else if(_ship_dragging){
+        if(event->buttons() == Qt::LeftButton){
+            int cell_number = getCellNumber(event->x(), event->y());
+            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
+                _states_of_cells[cell_number] = CELL_GHOST;
+                _cell_ghost = cell_number;
+                update();
+            }
+        }
+    }
+//    else if(_ship_dragging){
+//        if(event->buttons() == Qt::LeftButton){
+//            int cell_number = getCellNumber(event->x(), event->y());
+//            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
+//                _states_of_cells[cell_number] = CELL_GHOST;
+//                update();
+//            }
+//        }
+//    }
     QWidget::mouseMoveEvent(event);
 }
 
 void SeaFightField::mousePressEvent(QMouseEvent *event){
+    qDebug()<<"press";
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD){
-            emit cellPressed(cell_number);
+            if(_ship_dragging){
+                if(_states_of_cells[cell_number] == CELL_SHIP){
+                    _cell_dragged = cell_number;
+                }
+            }else{
+                emit cellPressed(cell_number);
+            }
+
         }
     }
     QWidget::mousePressEvent(event);
 }
 
 void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
-    ;
+    qDebug()<<"release";
+    qDebug()<<_cell_dragged;
+    if(event->button() == Qt::LeftButton){
+        int cell_number = getCellNumber(event->x(), event->y());
+        if(cell_number != OUT_OF_FIELD && _ship_dragging){
+            if(_states_of_cells[_cell_dragged] == CELL_SHIP){
+                _states_of_cells.remove(_cell_dragged);
+                _states_of_cells[cell_number] = CELL_SHIP;
+            }
+            _cell_dragged = OUT_OF_FIELD;
+            update();
+        }
+    }
+    qDebug()<<_states_of_cells;
+    QWidget::mouseReleaseEvent(event);
 }
 
 void SeaFightField::drawCells(QPainter &painter){
@@ -74,6 +120,7 @@ void SeaFightField::drawCells(QPainter &painter){
             case CELL_WOUND: drawWound(painter, rect); break;
             case CELL_MISS: drawMiss(painter, rect); break;
             case CELL_SHIP: drawShip(painter, rect); break;
+            case CELL_GHOST: drawShip(painter, rect); break;
         }
     }
 }
@@ -127,4 +174,15 @@ void SeaFightField::drawMiss(QPainter &painter, QRect rect){
 
 void SeaFightField::drawShip(QPainter &painter, QRect rect){
     drawRect(painter, rect, QColor("#20B2AA"));
+}
+
+void SeaFightField::clearGhostShips(){
+    auto it = _states_of_cells.begin();
+    while(it != _states_of_cells.end()){
+        if(*it == CELL_GHOST){
+            it = _states_of_cells.erase(it);
+        }else{
+            ++it;
+        }
+    }
 }
