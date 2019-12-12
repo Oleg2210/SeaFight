@@ -9,18 +9,17 @@
 
 
 SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
-    FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _cell_crossed(OUT_OF_FIELD),
-    _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
+    FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
+    _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
-    _states_of_cells[1] = CELL_WOUND;
-    _states_of_cells[2] = CELL_WOUND;
-    _states_of_cells[3] = CELL_MISS;
-    _states_of_cells[11] = CELL_MISS;
-    _states_of_cells[12] = CELL_MISS;
-    _states_of_cells[13] = CELL_MISS;
+//    _states_of_cells[1] = CELL_WOUND;
+//    _states_of_cells[2] = CELL_WOUND;
+//    _states_of_cells[3] = CELL_MISS;
+//    _states_of_cells[11] = CELL_MISS;
+//    _states_of_cells[12] = CELL_MISS;
+//    _states_of_cells[13] = CELL_MISS;
 
     _states_of_cells[77] = CELL_SHIP;
-    _states_of_cells[100] = CELL_MISS;
 }
 
 SeaFightField::~SeaFightField(){
@@ -30,8 +29,8 @@ void SeaFightField::paintEvent(QPaintEvent *event){
     FightField::paintEvent(event);
     QPainter painter(this);
     drawCells(painter);
-    _states_of_cells.remove(_cell_ghost);
-    _cell_ghost = OUT_OF_FIELD;
+    //_states_of_cells.remove(_cell_ghost);
+    //_cell_ghost = OUT_OF_FIELD;
 //    clearGhostShips();
 
     if(_crossed_cell_highlighting && _cell_crossed){
@@ -44,7 +43,6 @@ void SeaFightField::paintEvent(QPaintEvent *event){
 }
 
 void SeaFightField::mouseMoveEvent(QMouseEvent *event){
-    qDebug()<<"move";
     if(_crossed_cell_highlighting){
         int cell_number = getCellNumber(event->x(), event->y());
         _cell_crossed = cell_number;
@@ -52,16 +50,16 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
             update();
         }
     }
-    else if(_ship_dragging){
-        if(event->buttons() == Qt::LeftButton){
-            int cell_number = getCellNumber(event->x(), event->y());
-            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
-                _states_of_cells[cell_number] = CELL_GHOST;
-                _cell_ghost = cell_number;
-                update();
-            }
-        }
-    }
+//    else if(_ship_dragging){
+//        if(event->buttons() == Qt::LeftButton){
+//            int cell_number = getCellNumber(event->x(), event->y());
+//            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
+//                _states_of_cells[cell_number] = CELL_GHOST;
+//                _cell_ghost = cell_number;
+//                update();
+//            }
+//        }
+//    }
 //    else if(_ship_dragging){
 //        if(event->buttons() == Qt::LeftButton){
 //            int cell_number = getCellNumber(event->x(), event->y());
@@ -75,12 +73,13 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
 }
 
 void SeaFightField::mousePressEvent(QMouseEvent *event){
-    qDebug()<<"press";
+    qDebug()<<_states_of_cells;
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD){
             if(_ship_dragging){
-                if(_states_of_cells[cell_number] == CELL_SHIP){
+                auto states_iter = _states_of_cells.find(cell_number);
+                if(states_iter != _states_of_cells.end() && (states_iter.value() == CELL_SHIP)){
                     _cell_dragged = cell_number;
                 }
             }else{
@@ -89,16 +88,16 @@ void SeaFightField::mousePressEvent(QMouseEvent *event){
 
         }
     }
+    qDebug()<<_states_of_cells;
     QWidget::mousePressEvent(event);
 }
 
 void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
     qDebug()<<"release";
-    qDebug()<<_cell_dragged;
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD && _ship_dragging){
-            if(_states_of_cells[_cell_dragged] == CELL_SHIP){
+            if(_cell_dragged != OUT_OF_FIELD){
                 _states_of_cells.remove(_cell_dragged);
                 _states_of_cells[cell_number] = CELL_SHIP;
             }
@@ -106,7 +105,6 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
             update();
         }
     }
-    qDebug()<<_states_of_cells;
     QWidget::mouseReleaseEvent(event);
 }
 
