@@ -6,20 +6,23 @@
 #include <QPainterPath>
 #include <QFont>
 #include <QDebug>
-
+#include <algorithm>
 
 SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
     _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
-//    _states_of_cells[1] = CELL_WOUND;
-//    _states_of_cells[2] = CELL_WOUND;
-//    _states_of_cells[3] = CELL_MISS;
-//    _states_of_cells[11] = CELL_MISS;
-//    _states_of_cells[12] = CELL_MISS;
-//    _states_of_cells[13] = CELL_MISS;
+    _states_of_cells[1] = CELL_WOUND;
+    _states_of_cells[2] = CELL_WOUND;
+    _states_of_cells[3] = CELL_MISS;
+    _states_of_cells[11] = CELL_MISS;
+    _states_of_cells[12] = CELL_MISS;
+    _states_of_cells[13] = CELL_MISS;
 
+    _states_of_cells[67] = CELL_SHIP;
     _states_of_cells[77] = CELL_SHIP;
+    _states_of_cells[87] = CELL_SHIP;
+    _states_of_cells[97] = CELL_SHIP;
 }
 
 SeaFightField::~SeaFightField(){
@@ -73,7 +76,6 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
 }
 
 void SeaFightField::mousePressEvent(QMouseEvent *event){
-    qDebug()<<_states_of_cells;
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD){
@@ -88,16 +90,15 @@ void SeaFightField::mousePressEvent(QMouseEvent *event){
 
         }
     }
-    qDebug()<<_states_of_cells;
     QWidget::mousePressEvent(event);
 }
 
 void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
-    qDebug()<<"release";
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD && _ship_dragging){
             if(_cell_dragged != OUT_OF_FIELD){
+                getNeighbourShips(_cell_dragged);
                 _states_of_cells.remove(_cell_dragged);
                 _states_of_cells[cell_number] = CELL_SHIP;
             }
@@ -183,4 +184,35 @@ void SeaFightField::clearGhostShips(){
             ++it;
         }
     }
+}
+
+QVector<int> SeaFightField::getNeighbourShips(int cell_number){
+    QVector<int> neighbour_ships;
+    QVector<int> top_neighbours = getNeighbourShipsByDirection(cell_number, UP);
+    QVector<int> bot_neighbours = getNeighbourShipsByDirection(cell_number, DOWN);
+    std::reverse(top_neighbours.begin(), top_neighbours.end());
+    neighbour_ships = top_neighbours;
+    neighbour_ships.append(cell_number);
+    neighbour_ships += bot_neighbours;
+
+    qDebug()<<neighbour_ships;
+    return neighbour_ships;
+}
+
+QVector<int> SeaFightField::getNeighbourShipsByDirection(int cell_number, int direction){
+    QVector<int> neighbour_ships;
+    const int CELLS_PER_SIDE = FightField::FIELD_LETTERS.length();
+    int next_cell_number=cell_number;
+
+    while(_states_of_cells.contains(next_cell_number) && _states_of_cells[next_cell_number] == CELL_SHIP){
+        neighbour_ships.append(next_cell_number);
+        if(direction == UP){
+            next_cell_number-=CELLS_PER_SIDE;
+        }else if(direction == DOWN){
+            next_cell_number+=CELLS_PER_SIDE;
+        }
+    }
+
+    neighbour_ships.erase(neighbour_ships.begin());
+    return neighbour_ships;
 }

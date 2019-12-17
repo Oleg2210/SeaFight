@@ -2,6 +2,8 @@
 #define SEAFIGHTFIED_H
 
 #include "fightfield.h"
+#include <QVector>
+
 
 class SeaFightField: public FightField
 {
@@ -13,11 +15,19 @@ public:
     static const int CELL_SHIP = 3;
     static const int CELL_GHOST = 4;
 
+    static const int UP=5;
+    static const int DOWN=6;
+    static const int LEFT=7;
+    static const int RIGHT=8;
+
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
 
     SeaFightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr);
     ~SeaFightField();
+
+    QVector<int> getNeighbourShips(int cell_number);
+    QVector<int> getNeighbourShipsByDirection(int cell_number, int direction);
 
     inline void highlight_cell(bool hl_status){
         _crossed_cell_highlighting = hl_status;
