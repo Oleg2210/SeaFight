@@ -23,7 +23,7 @@ protected:
 
     static const QString FIELD_LETTERS;
     static const std::string CELL_SIZE_ERROR;
-    static const int CELLS_PER_SIDE;
+    static const int CELLS_PER_SIDE=10;
     static const int LINE_WIDTH = 1;
     static const int OUT_OF_FIELD = 0;
 

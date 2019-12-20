@@ -19,6 +19,12 @@ SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *
     _states_of_cells[12] = CELL_MISS;
     _states_of_cells[13] = CELL_MISS;
 
+    _states_of_cells[25] = CELL_SHIP;
+    _states_of_cells[26] = CELL_SHIP;
+    _states_of_cells[27] = CELL_SHIP;
+    _states_of_cells[28] = CELL_SHIP;
+
+
     _states_of_cells[67] = CELL_SHIP;
     _states_of_cells[77] = CELL_SHIP;
     _states_of_cells[87] = CELL_SHIP;
@@ -188,28 +194,33 @@ void SeaFightField::clearGhostShips(){
 
 QVector<int> SeaFightField::getNeighbourShips(int cell_number){
     QVector<int> neighbour_ships;
-    QVector<int> top_neighbours = getNeighbourShipsByDirection(cell_number, UP);
-    QVector<int> bot_neighbours = getNeighbourShipsByDirection(cell_number, DOWN);
-    std::reverse(top_neighbours.begin(), top_neighbours.end());
-    neighbour_ships = top_neighbours;
+
+    for(int direction=UP;direction<=RIGHT;direction++){
+        QVector<int> neigbours = getNeighbourShipsByDirection(cell_number, direction);
+        if(direction == UP || direction == LEFT){
+            std::reverse(neigbours.begin(), neigbours.end());
+        }
+        neighbour_ships += neigbours;
+    }
+
     neighbour_ships.append(cell_number);
-    neighbour_ships += bot_neighbours;
+    std::sort(neighbour_ships.begin(), neighbour_ships.end());
 
     qDebug()<<neighbour_ships;
     return neighbour_ships;
 }
 
-QVector<int> SeaFightField::getNeighbourShipsByDirection(int cell_number, int direction){
+QVector<int> SeaFightField::getNeighbourShipsByDirection(int cell_number, int direction){ //слишком длинное название?
     QVector<int> neighbour_ships;
-    const int CELLS_PER_SIDE = FightField::FIELD_LETTERS.length();
     int next_cell_number=cell_number;
 
     while(_states_of_cells.contains(next_cell_number) && _states_of_cells[next_cell_number] == CELL_SHIP){
         neighbour_ships.append(next_cell_number);
-        if(direction == UP){
-            next_cell_number-=CELLS_PER_SIDE;
-        }else if(direction == DOWN){
-            next_cell_number+=CELLS_PER_SIDE;
+        switch (direction) {
+            case UP: next_cell_number-=CELLS_PER_SIDE; break;
+            case DOWN: next_cell_number+=CELLS_PER_SIDE; break;
+            case LEFT: next_cell_number -= 1; break;
+            case RIGHT: next_cell_number += 1; break;
         }
     }
 

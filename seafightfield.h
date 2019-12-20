@@ -10,15 +10,12 @@ class SeaFightField: public FightField
     Q_OBJECT
 
 public:
-    static const int CELL_WOUND = 1;
+    static const int CELL_WOUND = 1; //заменить на enum?
     static const int CELL_MISS = 2;
     static const int CELL_SHIP = 3;
     static const int CELL_GHOST = 4;
 
-    static const int UP=5;
-    static const int DOWN=6;
-    static const int LEFT=7;
-    static const int RIGHT=8;
+    enum {UP=5, DOWN, LEFT, RIGHT}; //UP must stands first, RIGHT - last
 
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
