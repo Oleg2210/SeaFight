@@ -24,6 +24,7 @@ SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *
     _states_of_cells[27] = CELL_SHIP;
     _states_of_cells[28] = CELL_SHIP;
 
+    _states_of_cells[47] = CELL_SHIP;
 
     _states_of_cells[67] = CELL_SHIP;
     _states_of_cells[77] = CELL_SHIP;
@@ -104,9 +105,8 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
         int cell_number = getCellNumber(event->x(), event->y());
         if(cell_number != OUT_OF_FIELD && _ship_dragging){
             if(_cell_dragged != OUT_OF_FIELD){
-                getNeighbourShips(_cell_dragged);
-                _states_of_cells.remove(_cell_dragged);
-                _states_of_cells[cell_number] = CELL_SHIP;
+                auto neighbour_ships = getNeighbourShips(_cell_dragged);
+                replaceShips(_cell_dragged, cell_number, neighbour_ships);
             }
             _cell_dragged = OUT_OF_FIELD;
             update();
@@ -226,4 +226,64 @@ QVector<int> SeaFightField::getNeighbourShipsByDirection(int cell_number, int di
 
     neighbour_ships.erase(neighbour_ships.begin());
     return neighbour_ships;
+}
+
+bool SeaFightField::replaceShips(int from_cell, int to_cell, QVector<int> neighbour_ships){
+    int offset = to_cell - from_cell;
+    QVector<int> drag_positions;
+    for(int position: neighbour_ships)
+        drag_positions.append(position + offset);
+
+    if(dragValid(drag_positions)){
+        for(auto iter = neighbour_ships.begin(); iter != neighbour_ships.end(); iter++)
+            _states_of_cells.remove(*iter);
+        for(auto iter = neighbour_ships.begin(); iter != neighbour_ships.end(); iter++)
+            _states_of_cells[*iter + offset] = CELL_SHIP;
+    }
+    return true;
+}
+
+QSet<int> SeaFightField::getNeighbourCells(QVector<int> cells){
+    QSet<int> neighbour_cells;
+    for(auto iter=cells.begin(); iter!=cells.end(); iter++){
+        int cell_number = *iter - CELLS_PER_SIDE;
+        bool has_left = (cell_number % CELLS_PER_SIDE != 1)?true: false;
+        bool has_right = (cell_number % CELLS_PER_SIDE)?true: false;
+        for(int i=0; i<3; i++){
+            int position = cell_number + CELLS_PER_SIDE*i;
+            if(position>0 && position<(CELLS_PER_SIDE*CELLS_PER_SIDE)){ //CELLS_PER_SIDE*CELLS_PER_SIDE replace to const;
+                neighbour_cells.insert(position);
+                if(has_left)
+                    neighbour_cells.insert(position-1);
+                if(has_right)
+                    neighbour_cells.insert(position+1);
+            }
+        }
+    }
+
+    for(auto iter=cells.begin(); iter!=cells.end(); iter++){
+        neighbour_cells.remove(*iter);
+    }
+    return neighbour_cells;
+}
+
+bool SeaFightField::dragValid(QVector<int> to_postions){
+    if(to_postions.length() > 1){
+        bool vertical_dir = ((to_postions[2]-to_postions[1]) < CELLS_PER_SIDE)?false: true;
+        qDebug()<<vertical_dir;
+        if(vertical_dir){
+            for(int position: to_postions){
+                if(position<0 || position>CELLS_PER_SIDE*CELLS_PER_SIDE)
+                    return false;
+            }
+        }else{
+            int row = to_postions[1] / CELLS_PER_SIDE;
+            for(int position: to_postions){
+                if(position/CELLS_PER_SIDE != row) //change condition
+                    return false;
+            }
+        }
+    }
+
+    return true;
 }

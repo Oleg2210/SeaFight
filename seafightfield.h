@@ -9,13 +9,9 @@ class SeaFightField: public FightField
 {
     Q_OBJECT
 
-public:
-    static const int CELL_WOUND = 1; //заменить на enum?
-    static const int CELL_MISS = 2;
-    static const int CELL_SHIP = 3;
-    static const int CELL_GHOST = 4;
-
-    enum {UP=5, DOWN, LEFT, RIGHT}; //UP must stands first, RIGHT - last
+public:    
+    enum {CELL_WOUND, CELL_MISS, CELL_SHIP, CELL_GHOST};
+    enum {UP, DOWN, LEFT, RIGHT}; //UP must stands first, RIGHT - last
 
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
@@ -25,6 +21,9 @@ public:
 
     QVector<int> getNeighbourShips(int cell_number);
     QVector<int> getNeighbourShipsByDirection(int cell_number, int direction);
+    bool replaceShips(int from_cell, int to_cell, QVector<int> neighbour_ships);
+    bool dragValid(QVector<int> to_postions);
+    QSet<int> getNeighbourCells(QVector<int> cells);
 
     inline void highlight_cell(bool hl_status){
         _crossed_cell_highlighting = hl_status;
