@@ -21,7 +21,7 @@ public:
 
     QVector<int> getNeighbourShips(int cell_number);
     QVector<int> getNeighbourShipsByDirection(int cell_number, int direction);
-    bool replaceShips(int from_cell, int to_cell, QVector<int> neighbour_ships);
+    void replaceShips(int from_cell, int to_cell, QVector<int> neighbour_ships);
     bool dragValid(QVector<int> to_postions);
     QSet<int> getNeighbourCells(QVector<int> cells);
 

@@ -45,7 +45,7 @@ void FightField::drawFieldLabels(QPainter &painter){
     drawFieldNumbers(painter);
 }
 
-void FightField::drawFieldButtons(QPainter &painter){
+void FightField::drawFieldButtons(QPainter &painter){ //change name of function?
     QRect rect(getOffsetSize(), getOffsetSize(), getFieldSize(), getFieldSize());
     drawRect(painter, rect, Qt::white);
 
@@ -98,7 +98,7 @@ int FightField::getCellNumber(int x, int y){
 }
 
 QRect FightField::getRect(int cell_number){
-    if((cell_number <= OUT_OF_FIELD) || cell_number > CELLS_PER_SIDE*CELLS_PER_SIDE){
+    if((cell_number <= OUT_OF_FIELD) || cell_number > TOTAL_CELLS_NUMBER){
         throw std::runtime_error("cell is out");
     }
     cell_number -= 1;
