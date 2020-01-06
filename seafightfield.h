@@ -21,9 +21,11 @@ public:
 
     QVector<int> getNeighbourShips(int cell_number);
     QVector<int> getNeighbourShipsByDirection(int cell_number, int direction);
-    void replaceShips(int from_cell, int to_cell, QVector<int> neighbour_ships);
-    bool dragValid(QVector<int> to_postions);
+    void dragShips(int from_cell, int to_cell, QVector<int> neighbour_ships);
+    bool dragValid(QVector<int> to_positions);
     QSet<int> getNeighbourCells(QVector<int> cells);
+    void turnShip(QVector<int> neighbour_ships);
+    void replaceShips(QVector<int> start_positions, QVector<int> replace_positions);
 
     inline void highlight_cell(bool hl_status){
         _crossed_cell_highlighting = hl_status;
