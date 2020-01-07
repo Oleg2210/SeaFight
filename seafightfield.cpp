@@ -25,6 +25,7 @@ SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *
     _states_of_cells[28] = CELL_SHIP;
 
     _states_of_cells[47] = CELL_SHIP;
+    _states_of_cells[48] = CELL_SHIP;
 
     _states_of_cells[67] = CELL_SHIP;
     _states_of_cells[77] = CELL_SHIP;
@@ -104,7 +105,7 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         int cell_number = getCellNumber(event->x(), event->y());
 
-        if(cell_number != OUT_OF_FIELD && _ship_dragging){
+        if((cell_number != OUT_OF_FIELD) && (_cell_dragged != OUT_OF_FIELD) && _ship_dragging){
             auto neighbour_ships = getNeighbourShips(_cell_dragged);
             if(cell_number != _cell_dragged){
                 dragShips(_cell_dragged, cell_number, neighbour_ships);
@@ -113,6 +114,7 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
                 qDebug()<<"turn";
                 turnShip(neighbour_ships);
             }
+                _cell_dragged = OUT_OF_FIELD;
                 update();
         }
     }
@@ -327,8 +329,11 @@ void SeaFightField::replaceShips(QVector<int> start_positions, QVector<int> repl
         for(int position: start_positions)
             _states_of_cells.remove(position);
 
-        QSet<int> replace_neighbours = getNeighbourCells(replace_positions);
-        for(int cell_number: replace_neighbours){
+        QSet<int> replace_cells = getNeighbourCells(replace_positions);
+        for(int cell_number: replace_positions)
+            replace_cells.insert(cell_number);
+
+        for(int cell_number: replace_cells){
             if(_states_of_cells.find(cell_number) != _states_of_cells.end()){
                 for(int position: start_positions)
                     _states_of_cells[position] = CELL_SHIP;
