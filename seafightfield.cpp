@@ -6,31 +6,34 @@
 #include <QPainterPath>
 #include <QFont>
 #include <QDebug>
+#include <QRandomGenerator>
 #include <algorithm>
 
 SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
     _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
-    _states_of_cells[1] = CELL_WOUND;
-    _states_of_cells[2] = CELL_WOUND;
-    _states_of_cells[3] = CELL_MISS;
-    _states_of_cells[11] = CELL_MISS;
-    _states_of_cells[12] = CELL_MISS;
-    _states_of_cells[13] = CELL_MISS;
+//    _states_of_cells[1] = CELL_WOUND;
+//    _states_of_cells[2] = CELL_WOUND;
+//    _states_of_cells[3] = CELL_MISS;
+//    _states_of_cells[11] = CELL_MISS;
+//    _states_of_cells[12] = CELL_MISS;
+//    _states_of_cells[13] = CELL_MISS;
 
-    _states_of_cells[25] = CELL_SHIP;
-    _states_of_cells[26] = CELL_SHIP;
-    _states_of_cells[27] = CELL_SHIP;
-    _states_of_cells[28] = CELL_SHIP;
+//    _states_of_cells[25] = CELL_SHIP;
+//    _states_of_cells[26] = CELL_SHIP;
+//    _states_of_cells[27] = CELL_SHIP;
+//    _states_of_cells[28] = CELL_SHIP;
 
-    _states_of_cells[47] = CELL_SHIP;
-    _states_of_cells[48] = CELL_SHIP;
+//    _states_of_cells[47] = CELL_SHIP;
+//    _states_of_cells[48] = CELL_SHIP;
 
-    _states_of_cells[67] = CELL_SHIP;
-    _states_of_cells[77] = CELL_SHIP;
-    _states_of_cells[87] = CELL_SHIP;
-    _states_of_cells[97] = CELL_SHIP;
+//    _states_of_cells[67] = CELL_SHIP;
+//    _states_of_cells[77] = CELL_SHIP;
+//    _states_of_cells[87] = CELL_SHIP;
+//    _states_of_cells[97] = CELL_SHIP;
+//    randomArrangement();
+    randomArrangement();
 }
 
 SeaFightField::~SeaFightField(){
@@ -344,5 +347,47 @@ void SeaFightField::replaceShips(QVector<int> start_positions, QVector<int> repl
 
         for(int position: replace_positions)
             _states_of_cells[position] = CELL_SHIP;
+    }
+}
+
+void SeaFightField::randomArrangement(){
+    const int DECK_MAX = 4;
+    QSet<int> engaged_cells;
+
+    for(int decks_number=1; decks_number<=DECK_MAX; decks_number++){
+        int ship_numbers = DECK_MAX - decks_number + 1;
+
+        for(int ship_number=0; ship_number<ship_numbers; ship_number++){
+            createShip(decks_number, engaged_cells);
+        }
+    }
+}
+
+void SeaFightField::createShip(int decks_number, QSet<int> &engaged_cells){
+    while(true){
+        QVector<int> ship;
+        int direction = QRandomGenerator::global()->generate() % 2;
+        int random_cell = QRandomGenerator::global()->generate() % 101;
+        bool is_valid = true;
+
+        for(int cell_number,deck=0; deck<decks_number; deck++){
+            cell_number = random_cell + ((direction)?deck: CELLS_PER_SIDE*deck);
+            qDebug()<<cell_number;
+            if(engaged_cells.find(cell_number) == engaged_cells.end()){
+                ship.append(cell_number);
+            }else{
+                is_valid = false;
+                break;
+            }
+        }
+
+        if(is_valid && dragValid(ship)){
+            engaged_cells += getNeighbourCells(ship);
+            for(int cell_number: ship){
+                _states_of_cells[cell_number] = CELL_SHIP;
+                engaged_cells.insert(cell_number);
+            }
+            break;
+        }
     }
 }

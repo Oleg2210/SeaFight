@@ -27,6 +27,9 @@ public:
     void turnShip(QVector<int> neighbour_ships);
     void replaceShips(QVector<int> start_positions, QVector<int> replace_positions);
 
+    void randomArrangement();
+    void createShip(int deck_number, QSet<int> &engaged_cells);
+
     inline void highlight_cell(bool hl_status){
         _crossed_cell_highlighting = hl_status;
     }
