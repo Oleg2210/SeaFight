@@ -13,26 +13,6 @@ SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
     _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
-//    _states_of_cells[1] = CELL_WOUND;
-//    _states_of_cells[2] = CELL_WOUND;
-//    _states_of_cells[3] = CELL_MISS;
-//    _states_of_cells[11] = CELL_MISS;
-//    _states_of_cells[12] = CELL_MISS;
-//    _states_of_cells[13] = CELL_MISS;
-
-//    _states_of_cells[25] = CELL_SHIP;
-//    _states_of_cells[26] = CELL_SHIP;
-//    _states_of_cells[27] = CELL_SHIP;
-//    _states_of_cells[28] = CELL_SHIP;
-
-//    _states_of_cells[47] = CELL_SHIP;
-//    _states_of_cells[48] = CELL_SHIP;
-
-//    _states_of_cells[67] = CELL_SHIP;
-//    _states_of_cells[77] = CELL_SHIP;
-//    _states_of_cells[87] = CELL_SHIP;
-//    _states_of_cells[97] = CELL_SHIP;
-//    randomArrangement();
     randomArrangement();
 }
 
@@ -43,9 +23,6 @@ void SeaFightField::paintEvent(QPaintEvent *event){
     FightField::paintEvent(event);
     QPainter painter(this);
     drawCells(painter);
-    //_states_of_cells.remove(_cell_ghost);
-    //_cell_ghost = OUT_OF_FIELD;
-//    clearGhostShips();
 
     if(_crossed_cell_highlighting && _cell_crossed){
         if(_states_of_cells.find(_cell_crossed) == _states_of_cells.end()){
@@ -64,25 +41,6 @@ void SeaFightField::mouseMoveEvent(QMouseEvent *event){
             update();
         }
     }
-//    else if(_ship_dragging){
-//        if(event->buttons() == Qt::LeftButton){
-//            int cell_number = getCellNumber(event->x(), event->y());
-//            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
-//                _states_of_cells[cell_number] = CELL_GHOST;
-//                _cell_ghost = cell_number;
-//                update();
-//            }
-//        }
-//    }
-//    else if(_ship_dragging){
-//        if(event->buttons() == Qt::LeftButton){
-//            int cell_number = getCellNumber(event->x(), event->y());
-//            if(cell_number != OUT_OF_FIELD && _cell_dragged != OUT_OF_FIELD){
-//                _states_of_cells[cell_number] = CELL_GHOST;
-//                update();
-//            }
-//        }
-//    }
     QWidget::mouseMoveEvent(event);
 }
 
@@ -112,9 +70,7 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
             auto neighbour_ships = getNeighbourShips(_cell_dragged);
             if(cell_number != _cell_dragged){
                 dragShips(_cell_dragged, cell_number, neighbour_ships);
-                qDebug()<<"drag";
             }else if(neighbour_ships.length() > 1){
-                qDebug()<<"turn";
                 turnShip(neighbour_ships);
             }
                 _cell_dragged = OUT_OF_FIELD;
@@ -134,7 +90,6 @@ void SeaFightField::drawCells(QPainter &painter){
             case CELL_WOUND: drawWound(painter, rect); break;
             case CELL_MISS: drawMiss(painter, rect); break;
             case CELL_SHIP: drawShip(painter, rect); break;
-            case CELL_GHOST: drawShip(painter, rect); break;
         }
     }
 }
@@ -188,17 +143,6 @@ void SeaFightField::drawMiss(QPainter &painter, QRect rect){
 
 void SeaFightField::drawShip(QPainter &painter, QRect rect){
     drawRect(painter, rect, QColor("#20B2AA"));
-}
-
-void SeaFightField::clearGhostShips(){
-    auto it = _states_of_cells.begin();
-    while(it != _states_of_cells.end()){
-        if(*it == CELL_GHOST){
-            it = _states_of_cells.erase(it);
-        }else{
-            ++it;
-        }
-    }
 }
 
 QVector<int> SeaFightField::getNeighbourShips(int cell_number){
@@ -364,15 +308,18 @@ void SeaFightField::randomArrangement(){
 }
 
 void SeaFightField::createShip(int decks_number, QSet<int> &engaged_cells){
+    QVector<int> ship;
+    int direction, random_cell;
+    bool is_valid;
+
     while(true){
-        QVector<int> ship;
-        int direction = QRandomGenerator::global()->generate() % 2;
-        int random_cell = QRandomGenerator::global()->generate() % 101;
-        bool is_valid = true;
+        ship.clear();
+        direction = QRandomGenerator::global()->generate() % 2;
+        random_cell = QRandomGenerator::global()->generate() % 101;
+        is_valid = true;
 
         for(int cell_number,deck=0; deck<decks_number; deck++){
             cell_number = random_cell + ((direction)?deck: CELLS_PER_SIDE*deck);
-            qDebug()<<cell_number;
             if(engaged_cells.find(cell_number) == engaged_cells.end()){
                 ship.append(cell_number);
             }else{

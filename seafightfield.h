@@ -10,7 +10,7 @@ class SeaFightField: public FightField
     Q_OBJECT
 
 public:    
-    enum {CELL_WOUND, CELL_MISS, CELL_SHIP, CELL_GHOST};
+    enum {CELL_WOUND, CELL_MISS, CELL_SHIP};
     enum {UP, DOWN, LEFT, RIGHT}; //UP must stands first, RIGHT - last
 
     static const int PEN_WIDTH = 2;
@@ -54,8 +54,6 @@ private:
     int _cell_dragged;
     int _cell_ghost;
     QHash<int, int> _states_of_cells;
-
-    void clearGhostShips();
     void highlightCell(QPainter &painter, QRect rect);
     void drawCells(QPainter &painter);
     void drawWound(QPainter &painter, QRect rect);

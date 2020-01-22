@@ -28,12 +28,14 @@ SOURCES += \
         fightfield.cpp \
         main.cpp \
         mainwindow.cpp \
-        seafightfield.cpp
+        seafightfield.cpp \
+        view.cpp
 
 HEADERS += \
         fightfield.h \
         mainwindow.h \
-        seafightfield.h
+        seafightfield.h \
+        view.h
 
 FORMS += \
         mainwindow.ui
