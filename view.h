@@ -3,13 +3,27 @@
 
 #include <QMainWindow>
 
+class QLabel;
+class QLineEdit;
+
 class View: public QMainWindow
 {
     Q_OBJECT
 
 public:
     View(QWidget *parent=nullptr);
-    ~View();
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+
+private slots:
+    void connectButtonClicked();
+
+private:
+    QWidget *startWidget;
+    QLabel *startInstrucntionLabel;
+    QLineEdit *startHostEdit;
+    QLineEdit *startPortEdit;
 };
 
 #endif // VIEW_H
