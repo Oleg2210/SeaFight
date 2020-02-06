@@ -5,6 +5,7 @@
 
 class QLabel;
 class QLineEdit;
+class QPushButton;
 
 class View: public QMainWindow
 {
@@ -20,10 +21,13 @@ private slots:
     void connectButtonClicked();
 
 private:
+    void setUpConnectionWidget();
+
     QWidget *startWidget;
     QLabel *startInstrucntionLabel;
     QLineEdit *startHostEdit;
     QLineEdit *startPortEdit;
+    QPushButton *startConnectButton;
 };
 
 #endif // VIEW_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,18 +27,15 @@ CONFIG += c++11
 SOURCES += \
         fightfield.cpp \
         main.cpp \
-        mainwindow.cpp \
         seafightfield.cpp \
         view.cpp
 
 HEADERS += \
         fightfield.h \
-        mainwindow.h \
         seafightfield.h \
         view.h
 
-FORMS += \
-        mainwindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -3,17 +3,26 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QGridLayout>
+#include <QRegularExpression>
+#include <QHostAddress>
+#include <QMessageBox>
 #include <QDebug>
 
 View::View(QWidget *parent):
     QMainWindow(parent)
 {
+    setUpConnectionWidget();
+    connect(startConnectButton, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
+    setCentralWidget(startWidget);
+}
+
+void View::setUpConnectionWidget(){
     startInstrucntionLabel = new QLabel(tr("To play input host adress and port of your opponent(your port is 00000)."));
     QLabel *startHostLabel = new QLabel(tr("Host adress"));
     QLabel *startPortLabel = new QLabel(tr("Port number"));
     startHostEdit = new QLineEdit;
     startPortEdit = new QLineEdit;
-    QPushButton *startConnectButton = new QPushButton(tr("Connect"));
+    startConnectButton = new QPushButton(tr("Connect"));
     QGridLayout *startLayout = new QGridLayout;
 
     startLayout->setVerticalSpacing(14);
@@ -31,9 +40,6 @@ View::View(QWidget *parent):
     startWidget=new QWidget(this);
     startWidget->setLayout(startLayout);
     startWidget->setFixedSize(startLayout->sizeHint());
-
-    connect(startConnectButton, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
-    setCentralWidget(startWidget);
 }
 
 void View::resizeEvent(QResizeEvent *event){
@@ -44,6 +50,18 @@ void View::resizeEvent(QResizeEvent *event){
 }
 
 void View::connectButtonClicked(){
-    qDebug()<<"ok";
+    QString ip_input = startHostEdit->text();
+    QString port_input = startPortEdit->text();
+
+    QRegularExpression port_reg("^[0-9]{1,5}$");
+    bool port_state = port_reg.match(port_input).hasMatch();
+    port_state = port_state && (port_input.toInt() <= 65535) && (port_input.toInt() > 0);
+    bool ip_state = !QHostAddress(ip_input).isNull();
+
+    if(ip_state && port_state){
+        qDebug()<<"ok";
+    }else{
+        QMessageBox::information(startWidget,tr(""),tr("IP adress or port number are wrong!"));
+    }
 }
 
