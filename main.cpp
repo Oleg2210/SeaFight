@@ -1,5 +1,4 @@
-#include "seafightfield.h"
-#include "view.h"
+#include "model.h"
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -23,8 +22,9 @@ int main(int argc, char *argv[])
 //    lay->addWidget(fight_field);
 
 //    wdg->show();
-    View *view = new View();
-    view->show();
+
+    Model model;
+    model.run();
 
     return a.exec();
 }

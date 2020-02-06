@@ -23,11 +23,11 @@ private slots:
 private:
     void setUpConnectionWidget();
 
-    QWidget *startWidget;
-    QLabel *startInstrucntionLabel;
-    QLineEdit *startHostEdit;
-    QLineEdit *startPortEdit;
-    QPushButton *startConnectButton;
+    QWidget *_start_widget;
+    QLabel *_start_instrucntion_label;
+    QLineEdit *_start_host_edit;
+    QLineEdit *_start_port_edit;
+    QPushButton *_start_connect_button;
 };
 
 #endif // VIEW_H

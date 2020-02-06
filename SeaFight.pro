@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         fightfield.cpp \
         main.cpp \
+        model.cpp \
         seafightfield.cpp \
         view.cpp
 
 HEADERS += \
         fightfield.h \
+        model.h \
         seafightfield.h \
         view.h
 

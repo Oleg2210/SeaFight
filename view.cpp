@@ -12,34 +12,34 @@ View::View(QWidget *parent):
     QMainWindow(parent)
 {
     setUpConnectionWidget();
-    connect(startConnectButton, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
-    setCentralWidget(startWidget);
+    connect(_start_connect_button, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
+    setCentralWidget(_start_widget);
 }
 
 void View::setUpConnectionWidget(){
-    startInstrucntionLabel = new QLabel(tr("To play input host adress and port of your opponent(your port is 00000)."));
-    QLabel *startHostLabel = new QLabel(tr("Host adress"));
-    QLabel *startPortLabel = new QLabel(tr("Port number"));
-    startHostEdit = new QLineEdit;
-    startPortEdit = new QLineEdit;
-    startConnectButton = new QPushButton(tr("Connect"));
-    QGridLayout *startLayout = new QGridLayout;
+    _start_instrucntion_label = new QLabel(tr("To play input host adress and port of your opponent(your port is 55433)."));
+    QLabel *start_host_label = new QLabel(tr("Host adress"));
+    QLabel *start_port_label = new QLabel(tr("Port number"));
+    _start_host_edit = new QLineEdit;
+    _start_port_edit = new QLineEdit;
+    _start_connect_button = new QPushButton(tr("Connect"));
+    QGridLayout *start_layout = new QGridLayout;
 
-    startLayout->setVerticalSpacing(14);
-    startInstrucntionLabel->setMinimumHeight(60);
-    startHostEdit->setFixedWidth(140);
-    startPortEdit->setFixedWidth(100);
+    start_layout->setVerticalSpacing(14);
+    _start_instrucntion_label->setMinimumHeight(60);
+    _start_host_edit->setFixedWidth(140);
+    _start_port_edit->setFixedWidth(100);
 
-    startLayout->addWidget(startInstrucntionLabel, 0, 0, 1, 4);
-    startLayout->addWidget(startHostLabel, 2, 0);
-    startLayout->addWidget(startHostEdit, 2, 1);
-    startLayout->addWidget(startPortLabel, 2, 2);
-    startLayout->addWidget(startPortEdit, 2, 3);
-    startLayout->addWidget(startConnectButton, 3, 3, 1, 1);
+    start_layout->addWidget(_start_instrucntion_label, 0, 0, 1, 4);
+    start_layout->addWidget(start_host_label, 2, 0);
+    start_layout->addWidget(_start_host_edit, 2, 1);
+    start_layout->addWidget(start_port_label, 2, 2);
+    start_layout->addWidget(_start_port_edit, 2, 3);
+    start_layout->addWidget(_start_connect_button, 3, 3, 1, 1);
 
-    startWidget=new QWidget(this);
-    startWidget->setLayout(startLayout);
-    startWidget->setFixedSize(startLayout->sizeHint());
+    _start_widget=new QWidget(this);
+    _start_widget->setLayout(start_layout);
+    _start_widget->setFixedSize(start_layout->sizeHint());
 }
 
 void View::resizeEvent(QResizeEvent *event){
@@ -47,11 +47,12 @@ void View::resizeEvent(QResizeEvent *event){
     int widgetX = (width() - widgetSize.width()) / 2;
     int widgetY = (height() - widgetSize.height()) / 2;
     centralWidget()->setGeometry(widgetX, widgetY, widgetSize.width(), widgetSize.height());
+    QWidget::resizeEvent(event);
 }
 
 void View::connectButtonClicked(){
-    QString ip_input = startHostEdit->text();
-    QString port_input = startPortEdit->text();
+    QString ip_input = _start_host_edit->text();
+    QString port_input = _start_port_edit->text();
 
     QRegularExpression port_reg("^[0-9]{1,5}$");
     bool port_state = port_reg.match(port_input).hasMatch();
@@ -61,7 +62,7 @@ void View::connectButtonClicked(){
     if(ip_state && port_state){
         qDebug()<<"ok";
     }else{
-        QMessageBox::information(startWidget,tr(""),tr("IP adress or port number are wrong!"));
+        QMessageBox::information(_start_widget, "", tr("IP adress or port number are wrong!"));
     }
 }
 
