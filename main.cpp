@@ -24,7 +24,9 @@ int main(int argc, char *argv[])
 //    wdg->show();
 
     Model model;
-    model.run();
-
-    return a.exec();
+    if(model.run()){
+        return a.exec();
+    }else{
+        return -1;
+    }
 }

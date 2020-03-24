@@ -17,7 +17,10 @@ View::View(QWidget *parent):
 }
 
 void View::setUpConnectionWidget(){
-    _start_instrucntion_label = new QLabel(tr("To play input host adress and port of your opponent(your port is 55433)."));
+    QString instuction = tr("To play input host adress and port of your opponent(your port is %port_numb).");
+    instuction.replace("%port_numb", QString::number(SFcom::PORT_NUMBER));
+
+    _start_instrucntion_label = new QLabel(instuction);
     QLabel *start_host_label = new QLabel(tr("Host adress"));
     QLabel *start_port_label = new QLabel(tr("Port number"));
     _start_host_edit = new QLineEdit;

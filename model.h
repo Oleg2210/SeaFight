@@ -12,7 +12,7 @@ class Model : public QObject
 public:
     Model(QObject *parent = nullptr);
     ~Model();
-    void run();
+    bool run();
 
 signals:
 
@@ -21,8 +21,6 @@ private slots:
     void someConnection();
 
 private:
-    enum {NOCONN,INCOMINGCONN,OUTCOMINGCONN};
-    const quint16 _PORT_NUMBER = 55433;
     View *_view;
     QTcpServer *_server_socket;
     QTcpSocket *_client_socket;

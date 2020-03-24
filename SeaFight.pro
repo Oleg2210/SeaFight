@@ -32,6 +32,7 @@ SOURCES += \
         view.cpp
 
 HEADERS += \
+        communication.h \
         fightfield.h \
         model.h \
         seafightfield.h \

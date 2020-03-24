@@ -2,6 +2,7 @@
 #define VIEW_H
 
 #include <QMainWindow>
+#include "communication.h"
 
 class QLabel;
 class QLineEdit;
