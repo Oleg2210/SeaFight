@@ -53,6 +53,10 @@ void View::resizeEvent(QResizeEvent *event){
     QWidget::resizeEvent(event);
 }
 
+void View::commandFromModel(QJsonDocument json_doc){
+    ;
+}
+
 void View::connectButtonClicked(){
     QString ip_input = _start_host_edit->text();
     QString port_input = _start_port_edit->text();
@@ -63,7 +67,11 @@ void View::connectButtonClicked(){
     bool ip_state = !QHostAddress(ip_input).isNull();
 
     if(ip_state && port_state){
-        qDebug()<<"ok";
+        QJsonObject payload;
+        payload["IP"] = ip_input;
+        payload["port"] = port_input;
+        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSSPLAY, SFcom::Status::REQUEST, payload);
+        emit commandToModel(json_doc);
     }else{
         QMessageBox::information(_start_widget, "", tr("IP adress or port number are wrong!"));
     }

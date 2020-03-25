@@ -14,13 +14,21 @@ public:
     ~Model();
     bool run();
 
-signals:
-
 public slots:
+    void commandFromView(QJsonDocument);
+
+signals:
+    void commandToView(QJsonDocument);
+
 private slots:
     void someConnection();
 
 private:
+    void viewLetUsPlay(QJsonDocument);
+
+    void connectPeersHandlers();
+    void peerLetUsPlay(QJsonDocument);
+
     View *_view;
     QTcpServer *_server_socket;
     QTcpSocket *_client_socket;

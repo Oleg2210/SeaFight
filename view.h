@@ -15,6 +15,12 @@ class View: public QMainWindow
 public:
     View(QWidget *parent=nullptr);
 
+public slots:
+    void commandFromModel(QJsonDocument);
+
+signals:
+    void commandToModel(QJsonDocument);
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
