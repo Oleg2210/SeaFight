@@ -24,19 +24,21 @@ private slots:
     void someConnection();
     void connectedToPeer();
     void peerConnectionError(QAbstractSocket::SocketError);
-    void messageFromPeer();
+    void commandFromPeer();
 
 private:
     void viewLetUsPlay(QJsonDocument);
 
     void connectPeersHandlers();
-    void peerLetUsPlay(QJsonDocument);
+    void writeToPeer(QJsonDocument);
+    void analizePeerCommand(QJsonDocument);
 
     View *_view;
     QTcpServer *_server_socket;
     QTcpSocket *_client_socket;
     int _connection_status;
-    int _game_phase;
+    quint16 _next_block_size;
+
 };
 
 #endif // MODEL_H

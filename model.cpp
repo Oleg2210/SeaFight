@@ -7,8 +7,9 @@
 Model::Model(QObject *parent) : QObject(parent)
 {
     _view = new View();
-    _server_socket=new QTcpServer(this);
+    _server_socket = new QTcpServer(this);
     _connection_status = SFcom::ConnectionType::NOCONN;
+    _next_block_size = 0;
 }
 
 Model::~Model(){
@@ -55,7 +56,7 @@ void Model::connectPeersHandlers(){
     connect(_client_socket, SIGNAL(connected()), this, SLOT(connectedToPeer()));
     connect(_client_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
             SLOT(peerConnectionError(QAbstractSocket::SocketError)));
-    connect(_client_socket, SIGNAL(readyRead()), this, SLOT(messageFromPeer()));
+    connect(_client_socket, SIGNAL(readyRead()), this, SLOT(commandFromPeer()));
 }
 
 void Model::someConnection(){
@@ -72,10 +73,12 @@ void Model::someConnection(){
 }
 
 void Model::connectedToPeer(){
-    qDebug()<<"connected";
+    if(_connection_status == SFcom::ConnectionType::OUTCOMINGCONN){
+        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSSPLAY, SFcom::Status::REQUEST);
+        writeToPeer(json_doc);
+    }
 }
-void Model::peerConnectionError(QAbstractSocket::SocketError err){
-    qDebug()<<"error";
+void Model::peerConnectionError(QAbstractSocket::SocketError){
     if(_client_socket->isOpen())
         _client_socket->close();
     _client_socket->disconnect();
@@ -86,6 +89,34 @@ void Model::peerConnectionError(QAbstractSocket::SocketError err){
     QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::CONNERROR);
     emit commandToView(json_doc);
 }
-void Model::messageFromPeer(){
-    ;
+
+void Model::commandFromPeer(){
+    QDataStream input_stream(_client_socket);
+    if(!_next_block_size){
+        if(_client_socket->bytesAvailable() >= sizeof(_next_block_size))
+            input_stream >> _next_block_size;
+        else
+            return;
+    }
+
+    if(_next_block_size <= _client_socket->bytesAvailable()){
+        QByteArray command;
+        input_stream.readRawData(command.data(), _next_block_size);
+//        char *temp = new char[_next_block_size +1];
+//        temp[_next_block_size] = '\0';
+//        input_stream.readRawData(temp, _next_block_size);
+//        command = temp;
+//        delete [] temp;
+        qDebug()<<command;
+        _next_block_size = 0;
+    }
+}
+
+void Model::writeToPeer(QJsonDocument json_doc){
+    QByteArray message;
+    QByteArray json_string = json_doc.toJson();
+    QDataStream output_stream(&message, QIODevice::WriteOnly);
+    output_stream << static_cast<quint16>(json_string.size());
+    message.push_back(json_string);
+    _client_socket->write(message, message.size());
 }
