@@ -8,7 +8,7 @@
 #include <QJsonValue>
 
 namespace SFcom{
-    const quint16 PORT_NUMBER = 55443;
+    const quint16 PORT_NUMBER = 55444;
     enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
     enum Status{REQUEST, OK, NO, CONNERROR};
     enum Commands{LETUSSPLAY, STRIKE, ERROR};

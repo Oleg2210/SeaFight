@@ -43,10 +43,10 @@ void Model::viewLetUsPlay(QJsonDocument json_doc){
     if(json_obj["status"] == SFcom::Status::REQUEST){
         if(_connection_status == SFcom::ConnectionType::NOCONN){
             QJsonObject payload = json_obj["payload"].toObject();
+            _connection_status = SFcom::ConnectionType::OUTCOMINGCONN;
             _client_socket = new QTcpSocket(this);
             connectPeersHandlers();
             _client_socket->connectToHost(payload["IP"].toString(), payload["port"].toInt());
-            _connection_status = SFcom::ConnectionType::OUTCOMINGCONN;
         }
     }
 }
@@ -75,7 +75,7 @@ void Model::connectedToPeer(){
     qDebug()<<"connected";
 }
 void Model::peerConnectionError(QAbstractSocket::SocketError err){
-    qDebug()<<"errr";
+    qDebug()<<"error";
     if(_client_socket->isOpen())
         _client_socket->close();
     _client_socket->disconnect();
