@@ -22,6 +22,9 @@ signals:
 
 private slots:
     void someConnection();
+    void connectedToPeer();
+    void peerConnectionError(QAbstractSocket::SocketError);
+    void messageFromPeer();
 
 private:
     void viewLetUsPlay(QJsonDocument);

@@ -44,21 +44,23 @@ void Model::viewLetUsPlay(QJsonDocument json_doc){
         if(_connection_status == SFcom::ConnectionType::NOCONN){
             QJsonObject payload = json_obj["payload"].toObject();
             _client_socket = new QTcpSocket(this);
-            _client_socket->connectToHost(payload["IP"].toString(), payload["port"].toInt());
             connectPeersHandlers();
+            _client_socket->connectToHost(payload["IP"].toString(), payload["port"].toInt());
             _connection_status = SFcom::ConnectionType::OUTCOMINGCONN;
         }
     }
 }
 
 void Model::connectPeersHandlers(){
-    connect(clientSocket,SIGNAL(connected()),this,SLOT(connectedToPeer()));
-    connect(clientSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(peerConnectionError(QAbstractSocket::SocketError)));
-    connect(clientSocket,SIGNAL(readyRead()),this,SLOT(messageFromPeer()));
+    connect(_client_socket, SIGNAL(connected()), this, SLOT(connectedToPeer()));
+    connect(_client_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
+            SLOT(peerConnectionError(QAbstractSocket::SocketError)));
+    connect(_client_socket, SIGNAL(readyRead()), this, SLOT(messageFromPeer()));
 }
 
 void Model::someConnection(){
     if(_connection_status == SFcom::ConnectionType::NOCONN){
+        qDebug()<<"some connection";
         _client_socket = _server_socket->nextPendingConnection();
         _connection_status = SFcom::ConnectionType::INCOMINGCONN;
         connectPeersHandlers();
@@ -67,4 +69,23 @@ void Model::someConnection(){
         temp->disconnectFromHost();
         temp->deleteLater();
     }
+}
+
+void Model::connectedToPeer(){
+    qDebug()<<"connected";
+}
+void Model::peerConnectionError(QAbstractSocket::SocketError err){
+    qDebug()<<"errr";
+    if(_client_socket->isOpen())
+        _client_socket->close();
+    _client_socket->disconnect();
+    _client_socket->deleteLater();
+    _client_socket = nullptr;
+
+    _connection_status = SFcom::ConnectionType::NOCONN;
+    QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::CONNERROR);
+    emit commandToView(json_doc);
+}
+void Model::messageFromPeer(){
+    ;
 }

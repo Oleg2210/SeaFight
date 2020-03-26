@@ -60,16 +60,17 @@ void View::commandFromModel(QJsonDocument json_doc){
 void View::connectButtonClicked(){
     QString ip_input = _start_host_edit->text();
     QString port_input = _start_port_edit->text();
+    int port_number = port_input.toInt();
 
     QRegularExpression port_reg("^[0-9]{1,5}$");
     bool port_state = port_reg.match(port_input).hasMatch();
-    port_state = port_state && (port_input.toInt() <= 65535) && (port_input.toInt() > 0);
+    port_state = port_state && (port_number <= 65535) && (port_number > 0);
     bool ip_state = !QHostAddress(ip_input).isNull();
 
     if(ip_state && port_state){
         QJsonObject payload;
         payload["IP"] = ip_input;
-        payload["port"] = port_input;
+        payload["port"] = port_number;
         QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSSPLAY, SFcom::Status::REQUEST, payload);
         emit commandToModel(json_doc);
     }else{

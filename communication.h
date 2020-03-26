@@ -8,12 +8,12 @@
 #include <QJsonValue>
 
 namespace SFcom{
-    const quint16 PORT_NUMBER = 55444;
-    enum ConnectionType{NOCONN,INCOMINGCONN,OUTCOMINGCONN};
-    enum Status{REQUEST,OK,NO};
-    enum Commands{LETUSSPLAY,STRIKE};
+    const quint16 PORT_NUMBER = 55443;
+    enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
+    enum Status{REQUEST, OK, NO, CONNERROR};
+    enum Commands{LETUSSPLAY, STRIKE, ERROR};
 
-    inline QJsonDocument createJsonCommand(int command_name, int status, QJsonObject payload){
+    inline QJsonDocument createJsonCommand(int command_name, int status, QJsonObject payload = QJsonObject()){
         QJsonDocument json_doc;
         QJsonObject json_obj;
         json_obj["command"] = command_name;
