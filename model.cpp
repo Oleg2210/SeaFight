@@ -101,14 +101,23 @@ void Model::commandFromPeer(){
 
     if(_next_block_size <= _client_socket->bytesAvailable()){
         QByteArray command;
+        command.resize(_next_block_size);
         input_stream.readRawData(command.data(), _next_block_size);
-//        char *temp = new char[_next_block_size +1];
-//        temp[_next_block_size] = '\0';
-//        input_stream.readRawData(temp, _next_block_size);
-//        command = temp;
-//        delete [] temp;
-        qDebug()<<command;
         _next_block_size = 0;
+        QJsonDocument json_doc = QJsonDocument::fromJson(command);
+        analizePeerCommand(json_doc);
+    }
+}
+
+void Model::analizePeerCommand(QJsonDocument json_doc){
+    QJsonObject json_obj = json_doc.object();
+    if(SFcom::checkCommandFormat(json_obj)){
+        switch (json_obj["command"].toInt()){
+            case SFcom::Commands::LETUSSPLAY: ; break;
+            default: ; break;
+        }
+    }else{
+        ;
     }
 }
 
