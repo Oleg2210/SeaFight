@@ -29,6 +29,7 @@ private slots:
 
 private:
     void setUpConnectionWidget();
+    void errorNotify(QJsonObject);
 
     QWidget *_start_widget;
     QLabel *_start_instrucntion_label;

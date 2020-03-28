@@ -9,6 +9,7 @@ Model::Model(QObject *parent) : QObject(parent)
     _view = new View();
     _server_socket = new QTcpServer(this);
     _connection_status = SFcom::ConnectionType::NOCONN;
+    _game_phase = SFcom::GamePhase::CONNECTION;
     _next_block_size = 0;
 }
 
@@ -78,7 +79,8 @@ void Model::connectedToPeer(){
         writeToPeer(json_doc);
     }
 }
-void Model::peerConnectionError(QAbstractSocket::SocketError){
+
+void Model::disconnectFromPeer(QJsonDocument json_doc){
     if(_client_socket->isOpen())
         _client_socket->close();
     _client_socket->disconnect();
@@ -86,8 +88,17 @@ void Model::peerConnectionError(QAbstractSocket::SocketError){
     _client_socket = nullptr;
 
     _connection_status = SFcom::ConnectionType::NOCONN;
-    QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::CONNERROR);
-    emit commandToView(json_doc);
+    if(_game_phase != SFcom::GamePhase::CONNECTION)
+        _game_phase = SFcom::GamePhase::CONNECTION;
+        emit commandToView(json_doc);
+}
+
+void Model::peerConnectionError(QAbstractSocket::SocketError){
+    disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::CONNERROR));
+}
+
+void Model::peerLogicError(){
+    disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::LOGICERROR));
 }
 
 void Model::commandFromPeer(){
@@ -114,10 +125,10 @@ void Model::analizePeerCommand(QJsonDocument json_doc){
     if(SFcom::checkCommandFormat(json_obj)){
         switch (json_obj["command"].toInt()){
             case SFcom::Commands::LETUSSPLAY: ; break;
-            default: ; break;
+            default: peerLogicError(); break;
         }
     }else{
-        ;
+        peerLogicError();
     }
 }
 

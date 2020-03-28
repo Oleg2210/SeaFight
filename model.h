@@ -30,6 +30,8 @@ private:
     void viewLetUsPlay(QJsonDocument);
 
     void connectPeersHandlers();
+    void disconnectFromPeer(QJsonDocument);
+    void peerLogicError();
     void writeToPeer(QJsonDocument);
     void analizePeerCommand(QJsonDocument);
 
@@ -37,6 +39,7 @@ private:
     QTcpServer *_server_socket;
     QTcpSocket *_client_socket;
     int _connection_status;
+    int _game_phase;
     quint16 _next_block_size;
 
 };

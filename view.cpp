@@ -54,7 +54,17 @@ void View::resizeEvent(QResizeEvent *event){
 }
 
 void View::commandFromModel(QJsonDocument json_doc){
-    ;
+    QJsonObject json_obj = json_doc.object();
+    if(json_obj["command"] == SFcom::Commands::ERROR){
+        errorNotify(json_obj);
+    }
+}
+
+void View::errorNotify(QJsonObject json_obj){
+    QString error_string = "connection error occurred";
+    if(json_obj["status"] == SFcom::Status::LOGICERROR)
+        error_string = "unknown error occurred";
+    QMessageBox::critical(nullptr, "", error_string);
 }
 
 void View::connectButtonClicked(){
