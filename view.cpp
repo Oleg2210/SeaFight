@@ -65,6 +65,7 @@ void View::errorNotify(QJsonObject json_obj){
     if(json_obj["status"] == SFcom::Status::LOGICERROR)
         error_string = "unknown error occurred";
     QMessageBox::critical(nullptr, "", error_string);
+    _start_connect_button->setEnabled(true);
 }
 
 void View::connectButtonClicked(){
@@ -81,10 +82,10 @@ void View::connectButtonClicked(){
         QJsonObject payload;
         payload["IP"] = ip_input;
         payload["port"] = port_number;
-        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSSPLAY, SFcom::Status::REQUEST, payload);
+        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSPLAY, SFcom::Status::REQUEST, payload);
         emit commandToModel(json_doc);
+        _start_connect_button->setEnabled(false);
     }else{
         QMessageBox::information(_start_widget, "", tr("IP adress or port number are wrong!"));
     }
 }
-

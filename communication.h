@@ -8,11 +8,11 @@
 #include <QJsonValue>
 
 namespace SFcom{
-    const quint16 PORT_NUMBER = 55444;
+    const quint16 PORT_NUMBER = 55443;
     enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
     enum GamePhase{CONNECTION, PREPARATION, GAME};
     enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR};
-    enum Commands{LETUSSPLAY, STRIKE, ERROR};
+    enum Commands{LETUSPLAY, STRIKE, ERROR};
     const QList<QString> command_keys = {"command", "status", "payload"};
 
     inline QJsonDocument createJsonCommand(int command_name, int status, QJsonObject payload = QJsonObject()){
@@ -31,6 +31,13 @@ namespace SFcom{
                 return false;
         }
         return true;
+    }
+
+    inline bool checkLetUsPlayFormat(const QJsonObject &json_obj){
+        int status = json_obj["status"].toInt();
+        if(status == Status::REQUEST || status == Status::NO || status == Status::OK)
+            return true;
+        return false;
     }
 };
 

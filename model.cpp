@@ -35,7 +35,7 @@ bool Model::run(){
 void Model::commandFromView(QJsonDocument json_doc){
     QJsonObject json_obj = json_doc.object();
 
-    if(json_obj["command"] == SFcom::Commands::LETUSSPLAY){
+    if(json_obj["command"] == SFcom::Commands::LETUSPLAY){
         viewLetUsPlay(json_doc);
     }
 }
@@ -75,7 +75,7 @@ void Model::someConnection(){
 
 void Model::connectedToPeer(){
     if(_connection_status == SFcom::ConnectionType::OUTCOMINGCONN){
-        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSSPLAY, SFcom::Status::REQUEST);
+        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSPLAY, SFcom::Status::REQUEST);
         writeToPeer(json_doc);
     }
 }
@@ -87,10 +87,11 @@ void Model::disconnectFromPeer(QJsonDocument json_doc){
     _client_socket->deleteLater();
     _client_socket = nullptr;
 
-    _connection_status = SFcom::ConnectionType::NOCONN;
-    if(_game_phase != SFcom::GamePhase::CONNECTION)
+    _connection_status = SFcom::ConnectionType::NOCONN; //add payload gamephase
+    if(_game_phase != SFcom::GamePhase::CONNECTION){
         _game_phase = SFcom::GamePhase::CONNECTION;
         emit commandToView(json_doc);
+    }
 }
 
 void Model::peerConnectionError(QAbstractSocket::SocketError){
@@ -124,7 +125,7 @@ void Model::analizePeerCommand(QJsonDocument json_doc){
     QJsonObject json_obj = json_doc.object();
     if(SFcom::checkCommandFormat(json_obj)){
         switch (json_obj["command"].toInt()){
-            case SFcom::Commands::LETUSSPLAY: ; break;
+            case SFcom::Commands::LETUSPLAY: peerLetUsPlay(json_obj); break;
             default: peerLogicError(); break;
         }
     }else{
@@ -139,4 +140,19 @@ void Model::writeToPeer(QJsonDocument json_doc){
     output_stream << static_cast<quint16>(json_string.size());
     message.push_back(json_string);
     _client_socket->write(message, message.size());
+}
+
+QString Model::getPeerIp(){
+    bool isIpv4;
+    QHostAddress ipv4(_client_socket->peerAddress().toIPv4Address(&isIpv4));
+    if(isIpv4)
+        return ipv4.toString();
+    else
+        return _client_socket->peerAddress().toString();
+}
+
+
+void Model::peerLetUsPlay(QJsonObject json_obj){
+    QJsonObject paylod;
+    paylod["IP"] = getPeerIp();
 }

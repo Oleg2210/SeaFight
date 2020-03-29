@@ -27,13 +27,17 @@ private slots:
     void commandFromPeer();
 
 private:
-    void viewLetUsPlay(QJsonDocument);
-
     void connectPeersHandlers();
     void disconnectFromPeer(QJsonDocument);
     void peerLogicError();
     void writeToPeer(QJsonDocument);
     void analizePeerCommand(QJsonDocument);
+    QString getPeerIp();
+
+    void viewLetUsPlay(QJsonDocument);
+
+    void peerLetUsPlay(QJsonObject);
+
 
     View *_view;
     QTcpServer *_server_socket;
