@@ -87,11 +87,13 @@ void Model::disconnectFromPeer(QJsonDocument json_doc){
     _client_socket->deleteLater();
     _client_socket = nullptr;
 
-    _connection_status = SFcom::ConnectionType::NOCONN; //add payload gamephase
-    if(_game_phase != SFcom::GamePhase::CONNECTION){
-        _game_phase = SFcom::GamePhase::CONNECTION;
-        emit commandToView(json_doc);
-    }
+    QJsonObject json_obj = json_doc.object();
+    json_obj["payload"] = QJsonObject{{"phase", SFcom::GamePhase::CONNECTION}};
+    json_doc.setObject(json_obj);
+
+    _connection_status = SFcom::ConnectionType::NOCONN;
+    _game_phase = SFcom::GamePhase::CONNECTION;
+    emit commandToView(json_doc);
 }
 
 void Model::peerConnectionError(QAbstractSocket::SocketError){

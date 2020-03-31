@@ -61,10 +61,13 @@ void View::commandFromModel(QJsonDocument json_doc){
 }
 
 void View::errorNotify(QJsonObject json_obj){
-    QString error_string = "connection error occurred";
-    if(json_obj["status"] == SFcom::Status::LOGICERROR)
-        error_string = "unknown error occurred";
-    QMessageBox::critical(nullptr, "", error_string);
+    qDebug()<<json_obj;
+    if(json_obj["payload"].toObject()["phase"] != SFcom::GamePhase::CONNECTION){
+        QString error_string = "connection error occurred";
+        if(json_obj["status"] == SFcom::Status::LOGICERROR)
+            error_string = "unknown error occurred";
+        QMessageBox::critical(nullptr, "", error_string);
+    }
     _start_connect_button->setEnabled(true);
 }
 
