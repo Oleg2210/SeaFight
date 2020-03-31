@@ -16,10 +16,10 @@ public:
     View(QWidget *parent=nullptr);
 
 public slots:
-    void commandFromModel(QJsonDocument);
+    void commandFromModel(QJsonObject);
 
 signals:
-    void commandToModel(QJsonDocument);
+    void commandToModel(QJsonObject);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -30,6 +30,7 @@ private slots:
 private:
     void setUpConnectionWidget();
     void errorNotify(QJsonObject);
+    void letUsPlayNotify(QJsonObject);
 
     QWidget *_start_widget;
     QLabel *_start_instrucntion_label;

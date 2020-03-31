@@ -15,10 +15,10 @@ public:
     bool run();
 
 public slots:
-    void commandFromView(QJsonDocument);
+    void commandFromView(QJsonObject);
 
 signals:
-    void commandToView(QJsonDocument);
+    void commandToView(QJsonObject);
 
 private slots:
     void someConnection();
@@ -28,13 +28,13 @@ private slots:
 
 private:
     void connectPeersHandlers();
-    void disconnectFromPeer(QJsonDocument);
+    void disconnectFromPeer(QJsonObject);
     void peerLogicError();
-    void writeToPeer(QJsonDocument);
-    void analizePeerCommand(QJsonDocument);
+    void writeToPeer(QJsonObject);
+    void analizePeerCommand(QJsonObject);
     QString getPeerIp();
 
-    void viewLetUsPlay(QJsonDocument);
+    void viewLetUsPlay(QJsonObject);
 
     void peerLetUsPlay(QJsonObject);
 

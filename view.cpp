@@ -53,15 +53,15 @@ void View::resizeEvent(QResizeEvent *event){
     QWidget::resizeEvent(event);
 }
 
-void View::commandFromModel(QJsonDocument json_doc){
-    QJsonObject json_obj = json_doc.object();
+void View::commandFromModel(QJsonObject json_obj){
     if(json_obj["command"] == SFcom::Commands::ERROR){
         errorNotify(json_obj);
+    }else if(json_obj["command"] == SFcom::Commands::LETUSPLAY){
+        letUsPlayNotify(json_obj);
     }
 }
 
 void View::errorNotify(QJsonObject json_obj){
-    qDebug()<<json_obj;
     if(json_obj["payload"].toObject()["phase"] != SFcom::GamePhase::CONNECTION){
         QString error_string = "connection error occurred";
         if(json_obj["status"] == SFcom::Status::LOGICERROR)
@@ -82,13 +82,26 @@ void View::connectButtonClicked(){
     bool ip_state = !QHostAddress(ip_input).isNull();
 
     if(ip_state && port_state){
-        QJsonObject payload;
-        payload["IP"] = ip_input;
-        payload["port"] = port_number;
-        QJsonDocument json_doc = SFcom::createJsonCommand(SFcom::Commands::LETUSPLAY, SFcom::Status::REQUEST, payload);
-        emit commandToModel(json_doc);
+        QJsonObject payload = QJsonObject{{"IP", ip_input}, {"port", port_number}};
+        QJsonObject json_obj = SFcom::createJsonCommand(SFcom::Commands::LETUSPLAY, SFcom::Status::REQUEST, payload);
+        emit commandToModel(json_obj);
         _start_connect_button->setEnabled(false);
     }else{
         QMessageBox::information(_start_widget, "", tr("IP adress or port number are wrong!"));
+    }
+}
+
+void View::letUsPlayNotify(QJsonObject json_obj){
+    QString peer_ip = json_obj["payload"].toObject()["IP"].toString();
+    if(json_obj["status"] == SFcom::Status::REQUEST){
+        QString question = "User with IP \"" + peer_ip + "\" invites you to play. What will you answer?";
+        QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Game request"), tr(qPrintable(question)),
+                                                                QMessageBox::Yes|QMessageBox::No);
+        if(answer == QMessageBox::Yes)
+            json_obj["status"] = SFcom::Status::OK;
+        else
+            json_obj["status"] = SFcom::Status::NO;
+
+        emit commandToModel(json_obj);
     }
 }
