@@ -12,15 +12,13 @@ View::View(QWidget *parent):
     QMainWindow(parent)
 {
     setUpConnectionWidget();
-    connect(_start_connect_button, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
-    setCentralWidget(_start_widget);
 }
 
 void View::setUpConnectionWidget(){
-    QString instuction = tr("To play input host adress and port of your opponent(your port is %port_numb).");
+    QString instuction = "To play input host adress and port of your opponent(your port is %port_numb).";
     instuction.replace("%port_numb", QString::number(SFcom::PORT_NUMBER));
 
-    _start_instrucntion_label = new QLabel(instuction);
+    _start_instrucntion_label = new QLabel(tr(qPrintable(instuction)));
     QLabel *start_host_label = new QLabel(tr("Host adress"));
     QLabel *start_port_label = new QLabel(tr("Port number"));
     _start_host_edit = new QLineEdit;
@@ -40,9 +38,18 @@ void View::setUpConnectionWidget(){
     start_layout->addWidget(_start_port_edit, 2, 3);
     start_layout->addWidget(_start_connect_button, 3, 3, 1, 1);
 
-    _start_widget=new QWidget(this);
+    _start_widget = new QWidget(this);
     _start_widget->setLayout(start_layout);
     _start_widget->setFixedSize(start_layout->sizeHint());
+
+    connect(_start_connect_button, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
+    setCentralWidget(_start_widget);
+}
+
+void View::setUpBattleWidget(){
+    _battle_widget = new QWidget(this);
+    _battle_widget->setGeometry(0, 0, 640, 480);
+    setCentralWidget(_battle_widget);
 }
 
 void View::resizeEvent(QResizeEvent *event){
@@ -63,12 +70,14 @@ void View::commandFromModel(QJsonObject json_obj){
 
 void View::errorNotify(QJsonObject json_obj){
     if(json_obj["payload"].toObject()["phase"] != SFcom::GamePhase::CONNECTION){
+        setUpConnectionWidget();
         QString error_string = "connection error occurred";
         if(json_obj["status"] == SFcom::Status::LOGICERROR)
             error_string = "unknown error occurred";
         QMessageBox::critical(nullptr, "", error_string);
+    }else{
+        _start_connect_button->setEnabled(true);
     }
-    _start_connect_button->setEnabled(true);
 }
 
 void View::connectButtonClicked(){
@@ -97,11 +106,19 @@ void View::letUsPlayNotify(QJsonObject json_obj){
         QString question = "User with IP \"" + peer_ip + "\" invites you to play. What will you answer?";
         QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Game request"), tr(qPrintable(question)),
                                                                 QMessageBox::Yes|QMessageBox::No);
-        if(answer == QMessageBox::Yes)
+        if(answer == QMessageBox::Yes){
             json_obj["status"] = SFcom::Status::OK;
+            setUpBattleWidget();
+        }
         else
             json_obj["status"] = SFcom::Status::NO;
 
         emit commandToModel(json_obj);
+
+    }else if(json_obj["status"] == SFcom::Status::OK){
+        setUpBattleWidget();
+    }else if(json_obj["status"] == SFcom::Status::NO){
+        QString refusal = "User with IP \"" + peer_ip + "\" refused your request.";
+        QMessageBox::information(this, "", tr(qPrintable(refusal)));
     }
 }

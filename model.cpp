@@ -47,10 +47,12 @@ void Model::viewLetUsPlay(QJsonObject json_obj){
             connectPeersHandlers();
             _client_socket->connectToHost(payload["IP"].toString(), payload["port"].toInt());
         }
+    }else if(json_obj["status"] == SFcom::Status::NO){
+        writeToPeer(json_obj);
+        disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::CONNERROR));
     }else if(json_obj["status"] == SFcom::Status::OK){
-        qDebug()<<"ok";
-    }else{
-        qDebug()<<"jok";
+        _game_phase = SFcom::GamePhase::PREPARATION;
+        writeToPeer(json_obj);
     }
 }
 
@@ -63,7 +65,6 @@ void Model::connectPeersHandlers(){
 
 void Model::someConnection(){
     if(_connection_status == SFcom::ConnectionType::NOCONN){
-        qDebug()<<"some connection";
         _client_socket = _server_socket->nextPendingConnection();
         _connection_status = SFcom::ConnectionType::INCOMINGCONN;
         connectPeersHandlers();
@@ -82,13 +83,15 @@ void Model::connectedToPeer(){
 }
 
 void Model::disconnectFromPeer(QJsonObject json_obj){
-    if(_client_socket->isOpen())
+    if(_client_socket->isOpen()){
+        _client_socket->flush();
         _client_socket->close();
+    }
     _client_socket->disconnect();
     _client_socket->deleteLater();
     _client_socket = nullptr;
 
-    json_obj["payload"] = QJsonObject{{"phase", SFcom::GamePhase::CONNECTION}};
+    json_obj["payload"] = QJsonObject{{"phase", _game_phase}};
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
     emit commandToView(json_obj);
@@ -117,6 +120,7 @@ void Model::commandFromPeer(){
         input_stream.readRawData(command.data(), _next_block_size);
         _next_block_size = 0;
         QJsonDocument json_doc = QJsonDocument::fromJson(command);
+
         if(json_doc.isNull()){
             disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::LOGICERROR));
         }else{
@@ -157,11 +161,11 @@ QString Model::getPeerIp(){
 
 void Model::peerLetUsPlay(QJsonObject json_obj){
     json_obj["payload"] = QJsonObject{{"IP", getPeerIp()}};
-    if(json_obj["status"] == SFcom::Status::NO){
-        ;
-    }else if(json_obj["status"] != SFcom::Status::REQUEST){
+    qDebug()<<json_obj;
+    if(json_obj["status"] == SFcom::Status::OK){
+        _game_phase = SFcom::GamePhase::PREPARATION;
+    }else if(json_obj["status"] != SFcom::Status::REQUEST && json_obj["status"] != SFcom::Status::NO){
         disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::LOGICERROR));
     }
-
     emit commandToView(json_obj);
 }

@@ -29,10 +29,12 @@ private slots:
 
 private:
     void setUpConnectionWidget();
+    void setUpBattleWidget();
     void errorNotify(QJsonObject);
     void letUsPlayNotify(QJsonObject);
 
     QWidget *_start_widget;
+    QWidget *_battle_widget;
     QLabel *_start_instrucntion_label;
     QLineEdit *_start_host_edit;
     QLineEdit *_start_port_edit;
