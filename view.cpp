@@ -118,7 +118,6 @@ void View::letUsPlayNotify(QJsonObject json_obj){
     }else if(json_obj["status"] == SFcom::Status::OK){
         setUpBattleWidget();
     }else if(json_obj["status"] == SFcom::Status::NO){
-        QString refusal = "User with IP \"" + peer_ip + "\" refused your request.";
-        QMessageBox::information(this, "", tr(qPrintable(refusal)));
+        QMessageBox::information(_start_widget, "", tr("Your offer was rejected."));
     }
 }

@@ -160,8 +160,7 @@ QString Model::getPeerIp(){
 
 
 void Model::peerLetUsPlay(QJsonObject json_obj){
-    json_obj["payload"] = QJsonObject{{"IP", getPeerIp()}};
-    qDebug()<<json_obj;
+    json_obj["payload"] = QJsonObject{{"IP", "127.0.0.1"}};
     if(json_obj["status"] == SFcom::Status::OK){
         _game_phase = SFcom::GamePhase::PREPARATION;
     }else if(json_obj["status"] != SFcom::Status::REQUEST && json_obj["status"] != SFcom::Status::NO){
