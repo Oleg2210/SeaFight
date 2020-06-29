@@ -7,6 +7,7 @@
 #include <QHostAddress>
 #include <QMessageBox>
 #include <QDebug>
+#include <QThread>
 
 View::View(QWidget *parent):
     QMainWindow(parent)

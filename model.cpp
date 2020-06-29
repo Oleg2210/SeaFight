@@ -43,7 +43,7 @@ void Model::viewLetUsPlay(QJsonObject json_obj){
         if(_connection_status == SFcom::ConnectionType::NOCONN){
             QJsonObject payload = json_obj["payload"].toObject();
             _connection_status = SFcom::ConnectionType::OUTCOMINGCONN;
-            _client_socket = new QTcpSocket(this);
+            _client_socket = new QTcpSocket(_server_socket);
             connectPeersHandlers();
             _client_socket->connectToHost(payload["IP"].toString(), payload["port"].toInt());
         }
@@ -64,12 +64,12 @@ void Model::connectPeersHandlers(){
 }
 
 void Model::someConnection(){
-    if(_connection_status == SFcom::ConnectionType::NOCONN){
-        _client_socket = _server_socket->nextPendingConnection();
+    QTcpSocket *temp = _server_socket->nextPendingConnection();
+    if(_connection_status == SFcom::ConnectionType::NOCONN && temp){
+        _client_socket = temp;
         _connection_status = SFcom::ConnectionType::INCOMINGCONN;
         connectPeersHandlers();
     }else{
-        QTcpSocket *temp = _server_socket->nextPendingConnection();
         temp->disconnectFromHost();
         temp->deleteLater();
     }
@@ -88,8 +88,6 @@ void Model::disconnectFromPeer(QJsonObject json_obj){
         _client_socket->close();
     }
     _client_socket->disconnect();
-    _client_socket->deleteLater();
-    _client_socket = nullptr;
 
     json_obj["payload"] = QJsonObject{{"phase", _game_phase}};
     _connection_status = SFcom::ConnectionType::NOCONN;
@@ -160,7 +158,7 @@ QString Model::getPeerIp(){
 
 
 void Model::peerLetUsPlay(QJsonObject json_obj){
-    json_obj["payload"] = QJsonObject{{"IP", "127.0.0.1"}};
+    json_obj["payload"] = QJsonObject{{"IP", getPeerIp()}};
     if(json_obj["status"] == SFcom::Status::OK){
         _game_phase = SFcom::GamePhase::PREPARATION;
     }else if(json_obj["status"] != SFcom::Status::REQUEST && json_obj["status"] != SFcom::Status::NO){
