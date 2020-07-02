@@ -19,17 +19,21 @@ Model::~Model(){
 
 bool Model::run(){
     connect(_server_socket, SIGNAL(newConnection()), this, SLOT(someConnection()));
-    if(_server_socket->listen(QHostAddress::Any, SFcom::PORT_NUMBER)){
+    quint16 port = SFcom::PORT_NUMBER;
+
+    while(not(_server_socket->listen(QHostAddress::Any, port)) && port > 0){
+        port--;
+    }
+
+    if(port){
         connect(_view, SIGNAL(commandToModel(QJsonObject)), this, SLOT(commandFromView(QJsonObject)));
         connect(this, SIGNAL(commandToView(QJsonObject)), _view, SLOT(commandFromModel(QJsonObject)));
+        _view->setPortNumber(port);
         _view->show();
         return true;
-    }else{
-        QString port_error = tr("Port %port_numb is already allocated");
-        port_error.replace("%port_numb", QString::number(SFcom::PORT_NUMBER));
-        QMessageBox::critical(nullptr, "", port_error);
-        return false;
     }
+
+    return false;
 }
 
 void Model::commandFromView(QJsonObject json_obj){

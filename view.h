@@ -14,6 +14,8 @@ class View: public QMainWindow
 
 public:
     View(QWidget *parent=nullptr);
+    void setPortNumber(quint16);
+
 
 public slots:
     void commandFromModel(QJsonObject);
@@ -39,6 +41,7 @@ private:
     QLineEdit *_start_host_edit;
     QLineEdit *_start_port_edit;
     QPushButton *_start_connect_button;
+    quint16 _port_number;
 };
 
 #endif // VIEW_H
