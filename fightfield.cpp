@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <QDebug>
 
-const QString FightField::FIELD_LETTERS = "АБВГДЕЁЖЗИ";
+const QString FightField::FIELD_LETTERS = tr("ABCDEFGHIJ");
 const std::string FightField::CELL_SIZE_ERROR = "cell size is too small";
 
 FightField::FightField(int padding, int column_size, QFont font, QWidget *parent):

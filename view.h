@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "communication.h"
+#include "seafightfield.h"
 
 class QLabel;
 class QLineEdit;
@@ -32,16 +33,22 @@ private slots:
 private:
     void setUpConnectionWidget();
     void setUpBattleWidget();
+    void resizeMainWindow(const QSize);
     void errorNotify(QJsonObject);
     void letUsPlayNotify(QJsonObject);
 
+    quint16 _port_number;
     QWidget *_start_widget;
     QWidget *_battle_widget;
+    const QSize _start_widget_size = QSize(508, 156);
+
     QLabel *_start_instrucntion_label;
     QLineEdit *_start_host_edit;
     QLineEdit *_start_port_edit;
     QPushButton *_start_connect_button;
-    quint16 _port_number;
+
+    SeaFightField *_your_fight_field;
+    SeaFightField *_enemies_fight_field;
 };
 
 #endif // VIEW_H

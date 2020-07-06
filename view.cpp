@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QThread>
+#include <QApplication>
+#include <QDesktopWidget>
 
 View::View(QWidget *parent):
     QMainWindow(parent)
@@ -50,12 +52,28 @@ void View::setUpConnectionWidget(){
 
     connect(_start_connect_button, SIGNAL(clicked()), this, SLOT(connectButtonClicked()));
     setCentralWidget(_start_widget);
+    resizeMainWindow(_start_widget->sizeHint());
 }
 
 void View::setUpBattleWidget(){
     _battle_widget = new QWidget(this);
-    _battle_widget->setGeometry(0, 0, 640, 480);
+    QGridLayout *battle_layout = new QGridLayout;
+    QFont font("helvetica", 12);
+
+    _your_fight_field = new SeaFightField(8, 30, font, _battle_widget);
+    _enemies_fight_field = new SeaFightField(8, 30, font, _battle_widget);
+    battle_layout->addWidget(_your_fight_field, 0, 0);
+    battle_layout->addWidget(_enemies_fight_field, 0, 1);
+
+    _battle_widget->setLayout(battle_layout);
+    _battle_widget->setFixedSize(battle_layout->sizeHint());
     setCentralWidget(_battle_widget);
+    resizeMainWindow(_battle_widget->sizeHint());
+}
+
+void View::resizeMainWindow(const QSize size){
+    setFixedSize(size);
+    setMaximumSize(QApplication::desktop()->size());
 }
 
 void View::resizeEvent(QResizeEvent *event){

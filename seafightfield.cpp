@@ -68,7 +68,6 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
 
         if((cell_number != OUT_OF_FIELD) && (_cell_dragged != OUT_OF_FIELD) && _ship_dragging){
             auto neighbour_ships = getNeighbourShips(_cell_dragged);
-            qDebug()<<neighbour_ships.length();
             if(cell_number != _cell_dragged){
                 dragShips(_cell_dragged, cell_number, neighbour_ships);
             }else if(neighbour_ships.length() > 1){
@@ -84,7 +83,6 @@ void SeaFightField::mouseReleaseEvent(QMouseEvent *event){
 void SeaFightField::drawCells(QPainter &painter){
     for(auto iter = _states_of_cells.begin(); iter != _states_of_cells.end(); iter++){
         int cell_number = iter.key();
-        qDebug()<<cell_number;
         QRect rect = getRect(cell_number);
         int cell_state = iter.value();
 
