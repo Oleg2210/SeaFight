@@ -16,7 +16,7 @@ public:
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
 
-    SeaFightField(int padding=30, int column_size=30, QFont font=QApplication::font(), QWidget *parent = nullptr);
+    SeaFightField(int padding=30, int column_size=30, QFont font=QApplication::font(), bool random_arrangement=true, QWidget *parent=nullptr);
     ~SeaFightField();
 
     QVector<int> getNeighbourShips(int cell_number);
@@ -30,11 +30,11 @@ public:
     void randomArrangement();
     void createShip(int deck_number, QSet<int> &engaged_cells);
 
-    inline void highlight_cell(bool hl_status){
+    inline void highlightCell(bool hl_status){
         _crossed_cell_highlighting = hl_status;
     }
 
-    inline void drag_ship(bool drag_status){
+    inline void dragShip(bool drag_status){
         _ship_dragging = drag_status;
     }
 

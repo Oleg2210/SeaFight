@@ -14,38 +14,19 @@
 View::View(QWidget *parent):
     QMainWindow(parent)
 {
-    setUpConnectionWidget();
+    //setUpConnectionWidget();
+    setUpBattleWidget();
 }
 
 void View::setPortNumber(quint16 port_number){
     _port_number = port_number;
-    setUpConnectionWidget();
+    //setUpConnectionWidget();
+    setUpBattleWidget();
 }
 
 void View::setUpConnectionWidget(){
-    QString instuction = "To play input host adress and port of your opponent(your port is %port_numb).";
-    instuction.replace("%port_numb", QString::number(_port_number));
-
-    _start_instrucntion_label = new QLabel(tr(qPrintable(instuction)));
-    QLabel *start_host_label = new QLabel(tr("Host adress"));
-    QLabel *start_port_label = new QLabel(tr("Port number"));
-    _start_host_edit = new QLineEdit;
-    _start_port_edit = new QLineEdit;
-    _start_connect_button = new QPushButton(tr("Connect"));
     QGridLayout *start_layout = new QGridLayout;
-
-    start_layout->setVerticalSpacing(14);
-    _start_instrucntion_label->setMinimumHeight(60);
-    _start_host_edit->setFixedWidth(140);
-    _start_port_edit->setFixedWidth(100);
-
-    start_layout->addWidget(_start_instrucntion_label, 0, 0, 1, 4);
-    start_layout->addWidget(start_host_label, 2, 0);
-    start_layout->addWidget(_start_host_edit, 2, 1);
-    start_layout->addWidget(start_port_label, 2, 2);
-    start_layout->addWidget(_start_port_edit, 2, 3);
-    start_layout->addWidget(_start_connect_button, 3, 3, 1, 1);
-
+    setUpConnectionLayout(start_layout);
     _start_widget = new QWidget(this);
     _start_widget->setLayout(start_layout);
     _start_widget->setFixedSize(start_layout->sizeHint());
@@ -55,20 +36,60 @@ void View::setUpConnectionWidget(){
     resizeMainWindow(_start_widget->sizeHint());
 }
 
+void View::setUpConnectionLayout(QGridLayout *layout){
+    QString instuction = "To play input host adress and port of your opponent(your port is %port_numb).";
+    instuction.replace("%port_numb", QString::number(_port_number));
+    _start_instrucntion_label = new QLabel(tr(qPrintable(instuction)));
+
+    QLabel *start_host_label = new QLabel(tr("Host adress"));
+    QLabel *start_port_label = new QLabel(tr("Port number"));
+    _start_host_edit = new QLineEdit;
+    _start_port_edit = new QLineEdit;
+    _start_connect_button = new QPushButton(tr("Connect"));
+
+    layout->setVerticalSpacing(14);
+    _start_instrucntion_label->setMinimumHeight(60);
+    _start_host_edit->setFixedWidth(140);
+    _start_port_edit->setFixedWidth(100);
+
+    layout->addWidget(_start_instrucntion_label, 0, 0, 1, 4);
+    layout->addWidget(start_host_label, 2, 0);
+    layout->addWidget(_start_host_edit, 2, 1);
+    layout->addWidget(start_port_label, 2, 2);
+    layout->addWidget(_start_port_edit, 2, 3);
+    layout->addWidget(_start_connect_button, 3, 3, 1, 1);
+}
+
 void View::setUpBattleWidget(){
     _battle_widget = new QWidget(this);
     QGridLayout *battle_layout = new QGridLayout;
-    QFont font("helvetica", 12);
-
-    _your_fight_field = new SeaFightField(8, 30, font, _battle_widget);
-    _enemies_fight_field = new SeaFightField(8, 30, font, _battle_widget);
-    battle_layout->addWidget(_your_fight_field, 0, 0);
-    battle_layout->addWidget(_enemies_fight_field, 0, 1);
+    setUpBattleLayout(battle_layout);
+    _your_fight_field->dragShip(true);
 
     _battle_widget->setLayout(battle_layout);
     _battle_widget->setFixedSize(battle_layout->sizeHint());
     setCentralWidget(_battle_widget);
     resizeMainWindow(_battle_widget->sizeHint());
+}
+
+void View::setUpBattleLayout(QGridLayout *layout){
+    layout->setSpacing(0);
+    QFont field_font("helvetica", 12);
+    _your_fight_field = new SeaFightField(8, 30, field_font, _battle_widget);
+    _enemies_fight_field = new SeaFightField(8, 30, field_font, _battle_widget);
+
+    _battle_shuffle_button = new QPushButton(tr("shuffle"));
+    _battle_ready_button = new QPushButton(tr("ready"));
+    _battle_state_label = new QLabel(tr("Opponent is preparing"));
+    _battle_shuffle_button->setFixedSize(QSize(132, 30));
+    _battle_ready_button->setFixedSize(131, 30);
+    _battle_state_label->setStyleSheet("QLabel {color : orange; font-size: 17px;}");
+
+    layout->addWidget(_your_fight_field, 0, 0, 1, 15);
+    layout->addWidget(_enemies_fight_field, 0, 15, 1, 15);
+    layout->addWidget(_battle_shuffle_button, 1, 4);
+    layout->addWidget(_battle_ready_button, 1, 10);
+    layout->addWidget(_battle_state_label, 1, 22);
 }
 
 void View::resizeMainWindow(const QSize size){

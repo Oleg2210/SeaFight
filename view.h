@@ -8,6 +8,7 @@
 class QLabel;
 class QLineEdit;
 class QPushButton;
+class QGridLayout;
 
 class View: public QMainWindow
 {
@@ -32,7 +33,9 @@ private slots:
 
 private:
     void setUpConnectionWidget();
+    void setUpConnectionLayout(QGridLayout*);
     void setUpBattleWidget();
+    void setUpBattleLayout(QGridLayout*);
     void resizeMainWindow(const QSize);
     void errorNotify(QJsonObject);
     void letUsPlayNotify(QJsonObject);
@@ -43,9 +46,12 @@ private:
     const QSize _start_widget_size = QSize(508, 156);
 
     QLabel *_start_instrucntion_label;
+    QLabel *_battle_state_label;
     QLineEdit *_start_host_edit;
     QLineEdit *_start_port_edit;
     QPushButton *_start_connect_button;
+    QPushButton *_battle_shuffle_button;
+    QPushButton *_battle_ready_button;
 
     SeaFightField *_your_fight_field;
     SeaFightField *_enemies_fight_field;

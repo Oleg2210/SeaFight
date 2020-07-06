@@ -9,11 +9,13 @@
 #include <QRandomGenerator>
 #include <algorithm>
 
-SeaFightField::SeaFightField(int padding, int column_size, QFont font, QWidget *parent):
+SeaFightField::SeaFightField(int padding, int column_size, QFont font, bool random_arrangement, QWidget *parent):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
     _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
-    randomArrangement();
+    if(random_arrangement){
+        randomArrangement();
+    }
 }
 
 SeaFightField::~SeaFightField(){
