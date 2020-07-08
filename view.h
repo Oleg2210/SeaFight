@@ -30,6 +30,7 @@ protected:
 
 private slots:
     void connectButtonClicked();
+    void shuffleButtonClicked();
 
 private:
     void setUpConnectionWidget();

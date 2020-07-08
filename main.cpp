@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 
     Model model;
     if(model.run()){
+        //qDebug()<<QCoreApplication::applicationPid();
         return a.exec();
     }else{
         return -1;

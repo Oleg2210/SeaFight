@@ -16,7 +16,7 @@ public:
     static const int PEN_WIDTH = 2;
     static const int PEN_IMPERCISION = 1;
 
-    SeaFightField(int padding=30, int column_size=30, QFont font=QApplication::font(), bool random_arrangement=true, QWidget *parent=nullptr);
+    SeaFightField(bool random_arrangement=true, QWidget *parent=nullptr, QFont font=QFont("helvetica", 12), int padding=30, int column_size=30);
     ~SeaFightField();
 
     QVector<int> getNeighbourShips(int cell_number);

@@ -65,6 +65,7 @@ void View::setUpBattleWidget(){
     QGridLayout *battle_layout = new QGridLayout;
     setUpBattleLayout(battle_layout);
     _your_fight_field->dragShip(true);
+    connect(_battle_shuffle_button, SIGNAL(clicked()), this, SLOT(shuffleButtonClicked()));
 
     _battle_widget->setLayout(battle_layout);
     _battle_widget->setFixedSize(battle_layout->sizeHint());
@@ -74,9 +75,8 @@ void View::setUpBattleWidget(){
 
 void View::setUpBattleLayout(QGridLayout *layout){
     layout->setSpacing(0);
-    QFont field_font("helvetica", 12);
-    _your_fight_field = new SeaFightField(8, 30, field_font, _battle_widget);
-    _enemies_fight_field = new SeaFightField(8, 30, field_font, _battle_widget);
+    _your_fight_field = new SeaFightField(true, _battle_widget);
+    _enemies_fight_field = new SeaFightField(false, _battle_widget);
 
     _battle_shuffle_button = new QPushButton(tr("shuffle"));
     _battle_ready_button = new QPushButton(tr("ready"));
@@ -143,6 +143,15 @@ void View::connectButtonClicked(){
     }else{
         QMessageBox::information(_start_widget, "", tr("IP adress or port number are wrong!"));
     }
+}
+
+
+void View::shuffleButtonClicked(){
+    _battle_shuffle_button->setDisabled(true);
+    QThread::msleep(500);
+    _your_fight_field->randomArrangement();
+    _your_fight_field->update();
+    _battle_shuffle_button->setDisabled(false);
 }
 
 void View::letUsPlayNotify(QJsonObject json_obj){

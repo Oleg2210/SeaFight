@@ -9,7 +9,7 @@
 #include <QRandomGenerator>
 #include <algorithm>
 
-SeaFightField::SeaFightField(int padding, int column_size, QFont font, bool random_arrangement, QWidget *parent):
+SeaFightField::SeaFightField(bool random_arrangement, QWidget *parent, QFont font, int padding, int column_size):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
     _cell_crossed(OUT_OF_FIELD), _cell_dragged(OUT_OF_FIELD), _cell_ghost(OUT_OF_FIELD), _states_of_cells()
 {
@@ -286,6 +286,7 @@ void SeaFightField::replaceShips(QVector<int> start_positions, QVector<int> repl
 }
 
 void SeaFightField::randomArrangement(){
+    _states_of_cells.clear();
     const int DECK_MAX = 4;
     QSet<int> engaged_cells;
 
