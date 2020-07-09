@@ -13,15 +13,15 @@
 
 View::View(QWidget *parent):
     QMainWindow(parent)
-{
-    //setUpConnectionWidget();
-    setUpBattleWidget();
+{   _my_turn = false;
+    setUpConnectionWidget();
+    //setUpBattleWidget();
 }
 
 void View::setPortNumber(quint16 port_number){
     _port_number = port_number;
-    //setUpConnectionWidget();
-    setUpBattleWidget();
+    setUpConnectionWidget();
+    //setUpBattleWidget();
 }
 
 void View::setUpConnectionWidget(){
@@ -66,6 +66,8 @@ void View::setUpBattleWidget(){
     setUpBattleLayout(battle_layout);
     _your_fight_field->dragShip(true);
     connect(_battle_shuffle_button, SIGNAL(clicked()), this, SLOT(shuffleButtonClicked()));
+    connect(_battle_ready_button, SIGNAL(clicked()), this, SLOT(readyButtonClicked()));
+    connect(_enemies_fight_field, SIGNAL(cellPressed(int)), this, SLOT(enemyFieldMousePressed(int)));
 
     _battle_widget->setLayout(battle_layout);
     _battle_widget->setFixedSize(battle_layout->sizeHint());
@@ -110,6 +112,8 @@ void View::commandFromModel(QJsonObject json_obj){
         errorNotify(json_obj);
     }else if(json_obj["command"] == SFcom::Commands::LETUSPLAY){
         letUsPlayNotify(json_obj);
+    }else if(json_obj["command"] == SFcom::Commands::READY){
+        readinessCheck(json_obj);
     }
 }
 
@@ -154,6 +158,19 @@ void View::shuffleButtonClicked(){
     _battle_shuffle_button->setDisabled(false);
 }
 
+void View::readyButtonClicked(){
+    _battle_shuffle_button->setDisabled(true);
+    _battle_ready_button->setDisabled(true);
+    _your_fight_field->dragShip(false);
+
+    QJsonObject json_obj =SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::OK);
+    emit commandToModel(json_obj);
+}
+
+void View::enemyFieldMousePressed(int cell_number){
+    qDebug()<< cell_number;
+}
+
 void View::letUsPlayNotify(QJsonObject json_obj){
     QString peer_ip = json_obj["payload"].toObject()["IP"].toString();
     if(json_obj["status"] == SFcom::Status::REQUEST){
@@ -173,5 +190,11 @@ void View::letUsPlayNotify(QJsonObject json_obj){
         setUpBattleWidget();
     }else if(json_obj["status"] == SFcom::Status::NO){
         QMessageBox::information(_start_widget, "", tr("Your offer was rejected."));
+    }
+}
+
+void View::readinessCheck(QJsonObject obj){
+    if(obj["status"] == SFcom::Status::OK){
+        qDebug()<<"here4";
     }
 }

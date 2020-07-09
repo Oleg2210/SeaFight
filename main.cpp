@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QDebug>
+#include <QDateTime>
+#include <QUuid>
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +28,9 @@ int main(int argc, char *argv[])
     Model model;
     if(model.run()){
         //qDebug()<<QCoreApplication::applicationPid();
+//        uint time = QDateTime::currentDateTime().toTime_t();
+//        QUuid uid = QUuid::createUuid();
+
         return a.exec();
     }else{
         return -1;

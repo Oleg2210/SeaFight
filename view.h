@@ -31,6 +31,8 @@ protected:
 private slots:
     void connectButtonClicked();
     void shuffleButtonClicked();
+    void readyButtonClicked();
+    void enemyFieldMousePressed(int cell_number);
 
 private:
     void setUpConnectionWidget();
@@ -40,7 +42,9 @@ private:
     void resizeMainWindow(const QSize);
     void errorNotify(QJsonObject);
     void letUsPlayNotify(QJsonObject);
+    void readinessCheck(QJsonObject);
 
+    bool _my_turn;
     quint16 _port_number;
     QWidget *_start_widget;
     QWidget *_battle_widget;

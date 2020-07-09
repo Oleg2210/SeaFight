@@ -5,6 +5,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QJsonDocument>
+#include <QUuid>
 
 class Model : public QObject
 {
@@ -32,11 +33,14 @@ private:
     void peerLogicError();
     void writeToPeer(QJsonObject);
     void analizePeerCommand(QJsonObject);
+    void readinessCheck();
     QString getPeerIp();
 
     void viewLetUsPlay(QJsonObject);
+    void viewReady(QJsonObject);
 
     void peerLetUsPlay(QJsonObject);
+    void peerReady(QJsonObject);
 
 
     View *_view;
@@ -45,6 +49,7 @@ private:
     int _connection_status;
     int _game_phase;
     quint16 _next_block_size;
+    QPair<QUuid, QUuid> _move_indicator;
 
 };
 

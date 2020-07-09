@@ -12,7 +12,7 @@ namespace SFcom{
     enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
     enum GamePhase{CONNECTION, PREPARATION, GAME};
     enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR};
-    enum Commands{LETUSPLAY, STRIKE, ERROR};
+    enum Commands{LETUSPLAY, STRIKE, ERROR, READY};
     const QList<QString> command_keys = {"command", "status", "payload"};
 
     inline QJsonObject createJsonCommand(int command_name, int status, QJsonObject payload = QJsonObject()){

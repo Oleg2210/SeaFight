@@ -11,6 +11,8 @@ Model::Model(QObject *parent) : QObject(parent)
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
     _next_block_size = 0;
+    _move_indicator.first = 0;
+    _move_indicator.second = 0;
 }
 
 Model::~Model(){
@@ -39,6 +41,8 @@ bool Model::run(){
 void Model::commandFromView(QJsonObject json_obj){
     if(json_obj["command"] == SFcom::Commands::LETUSPLAY){
         viewLetUsPlay(json_obj);
+    }else if(json_obj["command"] == SFcom::Commands::READY){
+        viewReady(json_obj);
     }
 }
 
@@ -57,6 +61,27 @@ void Model::viewLetUsPlay(QJsonObject json_obj){
     }else if(json_obj["status"] == SFcom::Status::OK){
         _game_phase = SFcom::GamePhase::PREPARATION;
         writeToPeer(json_obj);
+    }
+}
+
+void Model::viewReady(QJsonObject obj){
+    qDebug()<< "here";
+    QUuid uuid = QUuid::createUuid();
+    _move_indicator.first = uuid;
+    obj["payload"] = QJsonObject{{"uuid", uuid.toString()}};
+    writeToPeer(obj);
+    readinessCheck();
+}
+
+void Model::readinessCheck(){
+    qDebug()<<"here3";
+    qDebug()<<_move_indicator;
+    if(_move_indicator.first != 0 && _move_indicator.second != 0){
+        qDebug()<< _move_indicator;
+        _game_phase = SFcom::GamePhase::GAME;
+        bool your_turn = (_move_indicator.first > _move_indicator.second);
+        QJsonObject payload = QJsonObject{{"your_turn", your_turn}};
+        commandToView(SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::OK, payload));
     }
 }
 
@@ -135,6 +160,7 @@ void Model::analizePeerCommand(QJsonObject json_obj){
     if(SFcom::checkCommandFormat(json_obj)){
         switch (json_obj["command"].toInt()){
             case SFcom::Commands::LETUSPLAY: peerLetUsPlay(json_obj); break;
+        case SFcom::Commands::READY: peerReady(json_obj); break;
             default: peerLogicError(); break;
         }
     }else{
@@ -169,4 +195,11 @@ void Model::peerLetUsPlay(QJsonObject json_obj){
         disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::LOGICERROR));
     }
     emit commandToView(json_obj);
+}
+
+void Model::peerReady(QJsonObject obj){
+    qDebug()<<"here2";
+    qDebug()<< obj;
+    _move_indicator.second = QUuid::fromString(obj["payload"].toObject()["uuid"].toString());
+    readinessCheck();
 }
