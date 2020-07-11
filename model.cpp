@@ -11,8 +11,7 @@ Model::Model(QObject *parent) : QObject(parent)
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
     _next_block_size = 0;
-    _move_indicator.first = 0;
-    _move_indicator.second = 0;
+    clearMoveIndicator();
 }
 
 Model::~Model(){
@@ -65,7 +64,6 @@ void Model::viewLetUsPlay(QJsonObject json_obj){
 }
 
 void Model::viewReady(QJsonObject obj){
-    qDebug()<< "here";
     QUuid uuid = QUuid::createUuid();
     _move_indicator.first = uuid;
     obj["payload"] = QJsonObject{{"uuid", uuid.toString()}};
@@ -74,10 +72,7 @@ void Model::viewReady(QJsonObject obj){
 }
 
 void Model::readinessCheck(){
-    qDebug()<<"here3";
-    qDebug()<<_move_indicator;
     if(_move_indicator.first != 0 && _move_indicator.second != 0){
-        qDebug()<< _move_indicator;
         _game_phase = SFcom::GamePhase::GAME;
         bool your_turn = (_move_indicator.first > _move_indicator.second);
         QJsonObject payload = QJsonObject{{"your_turn", your_turn}};
@@ -118,6 +113,7 @@ void Model::disconnectFromPeer(QJsonObject json_obj){
     }
     _client_socket->disconnect();
 
+    clearMoveIndicator();
     json_obj["payload"] = QJsonObject{{"phase", _game_phase}};
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
@@ -198,8 +194,8 @@ void Model::peerLetUsPlay(QJsonObject json_obj){
 }
 
 void Model::peerReady(QJsonObject obj){
-    qDebug()<<"here2";
-    qDebug()<< obj;
     _move_indicator.second = QUuid::fromString(obj["payload"].toObject()["uuid"].toString());
     readinessCheck();
+    if(_game_phase == SFcom::GamePhase::PREPARATION)
+        commandToView(obj);
 }

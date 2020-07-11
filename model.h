@@ -28,6 +28,10 @@ private slots:
     void commandFromPeer();
 
 private:
+    inline void clearMoveIndicator(){
+        _move_indicator.first = 0;
+        _move_indicator.second = 0;
+    }
     void connectPeersHandlers();
     void disconnectFromPeer(QJsonObject);
     void peerLogicError();

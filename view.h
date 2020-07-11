@@ -49,6 +49,7 @@ private:
     QWidget *_start_widget;
     QWidget *_battle_widget;
     const QSize _start_widget_size = QSize(508, 156);
+    static const QString _battle_state_label_text;
 
     QLabel *_start_instrucntion_label;
     QLabel *_battle_state_label;

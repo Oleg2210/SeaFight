@@ -11,17 +11,17 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
+const QString View::_battle_state_label_text = "QLabel {color : %color; font-size: 17px;}";
+
 View::View(QWidget *parent):
     QMainWindow(parent)
 {   _my_turn = false;
     setUpConnectionWidget();
-    //setUpBattleWidget();
 }
 
 void View::setPortNumber(quint16 port_number){
     _port_number = port_number;
     setUpConnectionWidget();
-    //setUpBattleWidget();
 }
 
 void View::setUpConnectionWidget(){
@@ -85,7 +85,7 @@ void View::setUpBattleLayout(QGridLayout *layout){
     _battle_state_label = new QLabel(tr("Opponent is preparing"));
     _battle_shuffle_button->setFixedSize(QSize(132, 30));
     _battle_ready_button->setFixedSize(131, 30);
-    _battle_state_label->setStyleSheet("QLabel {color : orange; font-size: 17px;}");
+    _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", "orange"));
 
     layout->addWidget(_your_fight_field, 0, 0, 1, 15);
     layout->addWidget(_enemies_fight_field, 0, 15, 1, 15);
@@ -163,7 +163,7 @@ void View::readyButtonClicked(){
     _battle_ready_button->setDisabled(true);
     _your_fight_field->dragShip(false);
 
-    QJsonObject json_obj =SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::OK);
+    QJsonObject json_obj =SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::REQUEST);
     emit commandToModel(json_obj);
 }
 
@@ -195,6 +195,12 @@ void View::letUsPlayNotify(QJsonObject json_obj){
 
 void View::readinessCheck(QJsonObject obj){
     if(obj["status"] == SFcom::Status::OK){
-        qDebug()<<"here4";
+        QString turn_state = (obj["payload"].toObject()["your_turn"].toBool()) ? "your" : "opponent's";
+        QString label_color = (turn_state == "your") ? "green" : "orange";
+        _battle_state_label->setText("now it is " + turn_state + " turn");
+        _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", label_color));
+    }else if(obj["status"] == SFcom::Status::REQUEST){
+        _battle_state_label->setText(tr("Opponent is ready"));
+        _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", "green"));
     }
 }
