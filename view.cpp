@@ -11,7 +11,6 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-const QString View::_battle_state_label_text = "QLabel {color : %color; font-size: 17px;}";
 
 View::View(QWidget *parent):
     QMainWindow(parent)
@@ -82,10 +81,10 @@ void View::setUpBattleLayout(QGridLayout *layout){
 
     _battle_shuffle_button = new QPushButton(tr("shuffle"));
     _battle_ready_button = new QPushButton(tr("ready"));
-    _battle_state_label = new QLabel(tr("Opponent is preparing"));
+    _battle_state_label = new QLabel();
     _battle_shuffle_button->setFixedSize(QSize(132, 30));
     _battle_ready_button->setFixedSize(131, 30);
-    _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", "orange"));
+    toggleBattleStateLabel(false, "Opponent is preparing");
 
     layout->addWidget(_your_fight_field, 0, 0, 1, 15);
     layout->addWidget(_enemies_fight_field, 0, 15, 1, 15);
@@ -114,6 +113,9 @@ void View::commandFromModel(QJsonObject json_obj){
         letUsPlayNotify(json_obj);
     }else if(json_obj["command"] == SFcom::Commands::READY){
         readinessCheck(json_obj);
+    }
+    else if(json_obj["command"] == SFcom::Commands::STRIKE){
+        strikeResult(json_obj);
     }
 }
 
@@ -163,12 +165,21 @@ void View::readyButtonClicked(){
     _battle_ready_button->setDisabled(true);
     _your_fight_field->dragShip(false);
 
-    QJsonObject json_obj =SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::REQUEST);
+    QJsonObject json_obj = SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::REQUEST);
     emit commandToModel(json_obj);
 }
 
 void View::enemyFieldMousePressed(int cell_number){
-    qDebug()<< cell_number;
+    if(_my_turn && strikeValid(cell_number)){
+        _my_turn = false;
+        QJsonObject payload = QJsonObject{{"cell_number", cell_number}};
+        emit commandToModel(SFcom::createJsonCommand(SFcom::Commands::STRIKE, SFcom::Status::REQUEST, payload));
+        toggleBattleStateLabel(false, "Waiting for the opponent's answer");
+    }
+}
+
+bool View::strikeValid(int cell_number){
+    return true;
 }
 
 void View::letUsPlayNotify(QJsonObject json_obj){
@@ -195,12 +206,30 @@ void View::letUsPlayNotify(QJsonObject json_obj){
 
 void View::readinessCheck(QJsonObject obj){
     if(obj["status"] == SFcom::Status::OK){
-        QString turn_state = (obj["payload"].toObject()["your_turn"].toBool()) ? "your" : "opponent's";
-        QString label_color = (turn_state == "your") ? "green" : "orange";
-        _battle_state_label->setText("now it is " + turn_state + " turn");
-        _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", label_color));
+        _my_turn = obj["payload"].toObject()["your_turn"].toBool();
+        QString turn_state = (_my_turn) ? "your" : "opponent's";
+        turn_state = "now it is " + turn_state + " turn";
+        toggleBattleStateLabel(_my_turn, turn_state);
+        if(_my_turn) _enemies_fight_field->highlightCell(true);
+
     }else if(obj["status"] == SFcom::Status::REQUEST){
-        _battle_state_label->setText(tr("Opponent is ready"));
-        _battle_state_label->setStyleSheet(QString(_battle_state_label_text).replace("%color", "green"));
+        toggleBattleStateLabel(true, "Opponent is ready");
     }
+}
+
+void View::toggleBattleStateLabel(bool ready_state, QString label_text){
+    QString style_string = "QLabel {color : %color; font-size: 17px;}";
+    QString label_color = (ready_state) ? "green" : "orange";
+    style_string.replace("%color", label_color);
+    _battle_state_label->setStyleSheet(style_string);
+    _battle_state_label->setText(tr(qPrintable(label_text)));
+}
+
+void View::strikeResult(QJsonObject obj){
+    _your_fight_field->update();
+    _enemies_fight_field->update();
+    QJsonObject payload = obj["payload"].toObject();
+    bool turn = !(obj["status"] == SFcom::Status::MISS);
+    bool my_request = payload["my_request"].toBool();
+    _my_turn = ((turn && my_request) || (!turn && !my_request));
 }

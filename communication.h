@@ -11,7 +11,7 @@ namespace SFcom{
     const quint16 PORT_NUMBER = 55443;
     enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
     enum GamePhase{CONNECTION, PREPARATION, GAME};
-    enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR};
+    enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR, MISS, WOUND, DROWN};
     enum Commands{LETUSPLAY, STRIKE, ERROR, READY};
     const QList<QString> command_keys = {"command", "status", "payload"};
 

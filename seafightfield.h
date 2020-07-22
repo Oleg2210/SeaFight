@@ -10,7 +10,7 @@ class SeaFightField: public FightField
     Q_OBJECT
 
 public:    
-    enum {CELL_WOUND, CELL_MISS, CELL_SHIP};
+    enum {CELL_WOUND = 1, CELL_MISS, CELL_SHIP};
     enum {UP, DOWN, LEFT, RIGHT}; //UP must stands first, RIGHT - last
 
     static const int PEN_WIDTH = 2;
@@ -29,6 +29,11 @@ public:
 
     void randomArrangement();
     void createShip(int deck_number, QSet<int> &engaged_cells);
+
+    inline QHash<int, int>* getStatesOfCells(){
+        return &_states_of_cells;
+    }
+
 
     inline void highlightCell(bool hl_status){
         _crossed_cell_highlighting = hl_status;

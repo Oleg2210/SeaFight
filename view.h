@@ -18,6 +18,14 @@ public:
     View(QWidget *parent=nullptr);
     void setPortNumber(quint16);
 
+    inline SeaFightField* getMyFightField(){
+        return _your_fight_field;
+    }
+
+    inline SeaFightField* getEnemiesFightField(){
+        return _enemies_fight_field;
+    }
+
 
 public slots:
     void commandFromModel(QJsonObject);
@@ -43,13 +51,15 @@ private:
     void errorNotify(QJsonObject);
     void letUsPlayNotify(QJsonObject);
     void readinessCheck(QJsonObject);
+    void strikeResult(QJsonObject);
+    void toggleBattleStateLabel(bool ready_state, QString label_text);
+    bool strikeValid(int cell_number);
 
     bool _my_turn;
     quint16 _port_number;
     QWidget *_start_widget;
     QWidget *_battle_widget;
     const QSize _start_widget_size = QSize(508, 156);
-    static const QString _battle_state_label_text;
 
     QLabel *_start_instrucntion_label;
     QLabel *_battle_state_label;

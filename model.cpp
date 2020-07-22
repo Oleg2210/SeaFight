@@ -42,6 +42,8 @@ void Model::commandFromView(QJsonObject json_obj){
         viewLetUsPlay(json_obj);
     }else if(json_obj["command"] == SFcom::Commands::READY){
         viewReady(json_obj);
+    }else if(json_obj["command"] == SFcom::Commands::STRIKE){
+        writeToPeer(json_obj);
     }
 }
 
@@ -71,12 +73,49 @@ void Model::viewReady(QJsonObject obj){
     readinessCheck();
 }
 
+void Model::viewStrike(QJsonObject obj){
+    qDebug()<<"delete this function?";
+}
+
 void Model::readinessCheck(){
     if(_move_indicator.first != 0 && _move_indicator.second != 0){
         _game_phase = SFcom::GamePhase::GAME;
         bool your_turn = (_move_indicator.first > _move_indicator.second);
         QJsonObject payload = QJsonObject{{"your_turn", your_turn}};
         commandToView(SFcom::createJsonCommand(SFcom::Commands::READY, SFcom::Status::OK, payload));
+    }
+}
+
+SFcom::Status Model::strikeCheck(int cell_number){
+    auto my_field = _view->getMyFightField();
+    SFcom::Status strike_result = SFcom::Status::MISS;
+
+    if(my_field->getStatesOfCells()->value(cell_number) == SeaFightField::CELL_SHIP){
+        strike_result = SFcom::Status::WOUND;
+        QSet<int> neighbours = my_field->getNeighbourCells(QVector<int>({cell_number}));
+
+        for(int neigh_cell_number: neighbours){
+            if(my_field->getStatesOfCells()->value(neigh_cell_number) == SeaFightField::CELL_SHIP){
+                strike_result = SFcom::Status::DROWN;
+                break;
+            }
+        }
+    }
+    return strike_result;
+}
+
+void Model::updateMyField(int cell_number, SFcom::Status strike_status){
+    auto my_field = _view->getMyFightField();
+    if(strike_status == SFcom::Status::DROWN){
+        my_field->getStatesOfCells()->insert(cell_number, SeaFightField::CELL_WOUND);
+        QVector<int> neighbor_ships = my_field->getNeighbourShips(cell_number);
+        QSet<int> neighbor_cells = my_field->getNeighbourCells(neighbor_ships);
+        for(int n_cell: neighbor_cells){
+            my_field->getStatesOfCells()->insert(n_cell, SeaFightField::CELL_MISS);
+        }
+    }else{
+        int sea_fight_status = (strike_status == SFcom::Status::WOUND) ? SeaFightField::CELL_WOUND : SeaFightField::CELL_MISS;
+        my_field->getStatesOfCells()->insert(cell_number, sea_fight_status);
     }
 }
 
@@ -156,7 +195,8 @@ void Model::analizePeerCommand(QJsonObject json_obj){
     if(SFcom::checkCommandFormat(json_obj)){
         switch (json_obj["command"].toInt()){
             case SFcom::Commands::LETUSPLAY: peerLetUsPlay(json_obj); break;
-        case SFcom::Commands::READY: peerReady(json_obj); break;
+            case SFcom::Commands::READY: peerReady(json_obj); break;
+            case SFcom::Commands::STRIKE: peerStrike(json_obj); break;
             default: peerLogicError(); break;
         }
     }else{
@@ -198,4 +238,18 @@ void Model::peerReady(QJsonObject obj){
     readinessCheck();
     if(_game_phase == SFcom::GamePhase::PREPARATION)
         commandToView(obj);
+}
+
+void Model::peerStrike(QJsonObject obj){
+    int cell_number = obj["payload"].toObject()["cell_number"].toInt();
+    bool my_request = true;
+    if(obj["status"] == SFcom::Status::REQUEST){
+        my_request = false;
+        SFcom::Status strike_result = strikeCheck(cell_number);
+        updateMyField(cell_number, strike_result);
+        obj["status"] = strike_result;
+    }
+    writeToPeer(obj);
+    obj["payload"] = QJsonObject{{"my_request", my_request}};
+    commandToView(obj);
 }

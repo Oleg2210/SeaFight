@@ -39,12 +39,16 @@ private:
     void analizePeerCommand(QJsonObject);
     void readinessCheck();
     QString getPeerIp();
+    SFcom::Status strikeCheck(int cell_number);
+    void updateMyField(int cell_number, SFcom::Status strike_status);
 
     void viewLetUsPlay(QJsonObject);
     void viewReady(QJsonObject);
+    void viewStrike(QJsonObject);
 
     void peerLetUsPlay(QJsonObject);
     void peerReady(QJsonObject);
+    void peerStrike(QJsonObject);
 
 
     View *_view;
