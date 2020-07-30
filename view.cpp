@@ -207,17 +207,18 @@ void View::letUsPlayNotify(QJsonObject json_obj){
 void View::readinessCheck(QJsonObject obj){
     if(obj["status"] == SFcom::Status::OK){
         _my_turn = obj["payload"].toObject()["your_turn"].toBool();
-        QString turn_state = (_my_turn) ? "your" : "opponent's";
-        turn_state = "now it is " + turn_state + " turn";
-        toggleBattleStateLabel(_my_turn, turn_state);
-        if(_my_turn) _enemies_fight_field->highlightCell(true);
-
+        toggleBattleStateLabel(_my_turn, "");
+        highlightField();
     }else if(obj["status"] == SFcom::Status::REQUEST){
         toggleBattleStateLabel(true, "Opponent is ready");
     }
 }
 
 void View::toggleBattleStateLabel(bool ready_state, QString label_text){
+    if(!label_text.length()){
+        QString turn_state = (ready_state) ? "your" : "opponent's";
+        label_text = "now it is " + turn_state + " turn";
+    }
     QString style_string = "QLabel {color : %color; font-size: 17px;}";
     QString label_color = (ready_state) ? "green" : "orange";
     style_string.replace("%color", label_color);
@@ -232,4 +233,6 @@ void View::strikeResult(QJsonObject obj){
     bool turn = !(obj["status"] == SFcom::Status::MISS);
     bool my_request = payload["my_request"].toBool();
     _my_turn = ((turn && my_request) || (!turn && !my_request));
+    toggleBattleStateLabel(_my_turn, "");
+    highlightField();
 }

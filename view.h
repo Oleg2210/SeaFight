@@ -54,6 +54,10 @@ private:
     void strikeResult(QJsonObject);
     void toggleBattleStateLabel(bool ready_state, QString label_text);
     bool strikeValid(int cell_number);
+    inline void highlightField(){
+        _enemies_fight_field->highlightCell(_my_turn);
+    }
+
 
     bool _my_turn;
     quint16 _port_number;

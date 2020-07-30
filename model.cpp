@@ -91,12 +91,12 @@ SFcom::Status Model::strikeCheck(int cell_number){
     SFcom::Status strike_result = SFcom::Status::MISS;
 
     if(my_field->getStatesOfCells()->value(cell_number) == SeaFightField::CELL_SHIP){
-        strike_result = SFcom::Status::WOUND;
+        strike_result = SFcom::Status::DROWN;
         QSet<int> neighbours = my_field->getNeighbourCells(QVector<int>({cell_number}));
 
         for(int neigh_cell_number: neighbours){
             if(my_field->getStatesOfCells()->value(neigh_cell_number) == SeaFightField::CELL_SHIP){
-                strike_result = SFcom::Status::DROWN;
+                strike_result = SFcom::Status::WOUND;
                 break;
             }
         }
@@ -104,18 +104,18 @@ SFcom::Status Model::strikeCheck(int cell_number){
     return strike_result;
 }
 
-void Model::updateMyField(int cell_number, SFcom::Status strike_status){
-    auto my_field = _view->getMyFightField();
+void Model::updateField(int cell_number, SFcom::Status strike_status, bool my_field){
+    auto field = (my_field) ? _view->getMyFightField() : _view->getEnemiesFightField();
     if(strike_status == SFcom::Status::DROWN){
-        my_field->getStatesOfCells()->insert(cell_number, SeaFightField::CELL_WOUND);
-        QVector<int> neighbor_ships = my_field->getNeighbourShips(cell_number);
-        QSet<int> neighbor_cells = my_field->getNeighbourCells(neighbor_ships);
+        field->getStatesOfCells()->insert(cell_number, SeaFightField::CELL_WOUND);
+        QVector<int> neighbor_ships = field->getNeighbourShips(cell_number);
+        QSet<int> neighbor_cells = field->getNeighbourCells(neighbor_ships);
         for(int n_cell: neighbor_cells){
-            my_field->getStatesOfCells()->insert(n_cell, SeaFightField::CELL_MISS);
+            field->getStatesOfCells()->insert(n_cell, SeaFightField::CELL_MISS);
         }
     }else{
         int sea_fight_status = (strike_status == SFcom::Status::WOUND) ? SeaFightField::CELL_WOUND : SeaFightField::CELL_MISS;
-        my_field->getStatesOfCells()->insert(cell_number, sea_fight_status);
+        field->getStatesOfCells()->insert(cell_number, sea_fight_status);
     }
 }
 
@@ -243,13 +243,22 @@ void Model::peerReady(QJsonObject obj){
 void Model::peerStrike(QJsonObject obj){
     int cell_number = obj["payload"].toObject()["cell_number"].toInt();
     bool my_request = true;
+    SFcom::Status strike_result = static_cast<SFcom::Status>(obj["status"].toInt());
+    auto allowed_statuses = QVector<SFcom::Status>({SFcom::Status::MISS, SFcom::Status::WOUND, SFcom::Status::DROWN, SFcom::Status::REQUEST});
+
+    if(!(allowed_statuses.contains(strike_result))){
+        disconnectFromPeer(SFcom::createJsonCommand(SFcom::Commands::ERROR, SFcom::Status::LOGICERROR));
+        return;
+    }
+
     if(obj["status"] == SFcom::Status::REQUEST){
         my_request = false;
-        SFcom::Status strike_result = strikeCheck(cell_number);
-        updateMyField(cell_number, strike_result);
+        strike_result = strikeCheck(cell_number);
         obj["status"] = strike_result;
+        writeToPeer(obj);
     }
-    writeToPeer(obj);
+
+    updateField(cell_number, strike_result, !my_request);
     obj["payload"] = QJsonObject{{"my_request", my_request}};
     commandToView(obj);
 }

@@ -40,7 +40,7 @@ private:
     void readinessCheck();
     QString getPeerIp();
     SFcom::Status strikeCheck(int cell_number);
-    void updateMyField(int cell_number, SFcom::Status strike_status);
+    void updateField(int cell_number, SFcom::Status strike_status, bool my_field);
 
     void viewLetUsPlay(QJsonObject);
     void viewReady(QJsonObject);

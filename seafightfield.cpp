@@ -166,10 +166,10 @@ QVector<int> SeaFightField::getNeighbourShips(int cell_number){
 
 QVector<int> SeaFightField::getNeighbourShipsByDirection(int cell_number, int direction){ //слишком длинное название?
     QVector<int> neighbour_ships;
-    int next_cell_number=cell_number;
+    int next_cell_number = cell_number;
 
     while(_states_of_cells.contains(next_cell_number) && ((_states_of_cells[next_cell_number] == CELL_SHIP)
-    || (_states_of_cells[next_cell_number] == CELL_SHIP))){
+    || (_states_of_cells[next_cell_number] == CELL_WOUND))){
 
         neighbour_ships.append(next_cell_number);
         switch (direction) {
