@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QRandomGenerator>
 #include <algorithm>
+#include <QProcess>
 
 SeaFightField::SeaFightField(bool random_arrangement, QWidget *parent, QFont font, int padding, int column_size):
     FightField (padding, column_size, font, parent), _crossed_cell_highlighting(false), _ship_dragging(false),
@@ -202,15 +203,17 @@ void SeaFightField::dragShips(int from_cell, int to_cell, QVector<int> neighbour
 QSet<int> SeaFightField::getNeighbourCells(QVector<int> cells){
     QSet<int> neighbour_cells;
     const int ROWS_NUMBER = 3;
+
     for(int cell_number: cells){
         int position = cell_number - CELLS_PER_SIDE;
-        bool has_left = (position % CELLS_PER_SIDE != 1)?true: false;
-        bool has_right = (position % CELLS_PER_SIDE)?true: false;
+        int remainder = position % CELLS_PER_SIDE;
+        bool has_left = (remainder != 1 && remainder != -9) ? true: false;
+        bool has_right = (position % CELLS_PER_SIDE) ? true: false;
 
         for(int i=0; i<ROWS_NUMBER; i++){
             int next_cell_num = position + CELLS_PER_SIDE*i;
 
-            if((next_cell_num > 0) && (next_cell_num < TOTAL_CELLS_NUMBER)){
+            if((next_cell_num > 0) && (next_cell_num <= TOTAL_CELLS_NUMBER)){
                 neighbour_cells.insert(next_cell_num);
                 if(has_left)
                     neighbour_cells.insert(next_cell_num - 1);
@@ -218,6 +221,7 @@ QSet<int> SeaFightField::getNeighbourCells(QVector<int> cells){
                     neighbour_cells.insert(next_cell_num + 1);
             }
         }
+
     }
 
     for(int cell_number: cells)

@@ -92,9 +92,10 @@ SFcom::Status Model::strikeCheck(int cell_number){
 
     if(my_field->getStatesOfCells()->value(cell_number) == SeaFightField::CELL_SHIP){
         strike_result = SFcom::Status::DROWN;
-        QSet<int> neighbours = my_field->getNeighbourCells(QVector<int>({cell_number}));
+        QVector<int> neighbour_ships = my_field->getNeighbourShips(cell_number);
+        neighbour_ships.removeOne(cell_number);
 
-        for(int neigh_cell_number: neighbours){
+        for(int neigh_cell_number: neighbour_ships){
             if(my_field->getStatesOfCells()->value(neigh_cell_number) == SeaFightField::CELL_SHIP){
                 strike_result = SFcom::Status::WOUND;
                 break;
