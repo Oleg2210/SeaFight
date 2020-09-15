@@ -11,8 +11,8 @@ namespace SFcom{
     const quint16 PORT_NUMBER = 55443;
     enum ConnectionType{NOCONN, INCOMINGCONN, OUTCOMINGCONN};
     enum GamePhase{CONNECTION, PREPARATION, GAME};
-    enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR, MISS, WOUND, DROWN};
-    enum Commands{LETUSPLAY, STRIKE, ERROR, READY};
+    enum Status{REQUEST, OK, NO, CONNERROR, LOGICERROR, MISS, WOUND, DROWN, WON, LOST};
+    enum Commands{LETUSPLAY, STRIKE, ERROR, READY, END};
     const QList<QString> command_keys = {"command", "status", "payload"};
 
     inline QJsonObject createJsonCommand(int command_name, int status, QJsonObject payload = QJsonObject()){

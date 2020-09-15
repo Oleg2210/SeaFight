@@ -11,6 +11,7 @@ Model::Model(QObject *parent) : QObject(parent)
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
     _next_block_size = 0;
+    _my_drown_ships = _enemies_drown_ships = 0;
     clearMoveIndicator();
 }
 
@@ -107,7 +108,10 @@ SFcom::Status Model::strikeCheck(int cell_number){
 
 void Model::updateField(int cell_number, SFcom::Status strike_status, bool my_field){
     auto field = (my_field) ? _view->getMyFightField() : _view->getEnemiesFightField();
+    auto drown_ships = (my_field) ? &_my_drown_ships : &_enemies_drown_ships;
+
     if(strike_status == SFcom::Status::DROWN){
+        (*drown_ships)++;
         field->getStatesOfCells()->insert(cell_number, SeaFightField::CELL_WOUND);
         QVector<int> neighbor_ships = field->getNeighbourShips(cell_number);
         QSet<int> neighbor_cells = field->getNeighbourCells(neighbor_ships);
@@ -117,6 +121,14 @@ void Model::updateField(int cell_number, SFcom::Status strike_status, bool my_fi
     }else{
         int sea_fight_status = (strike_status == SFcom::Status::WOUND) ? SeaFightField::CELL_WOUND : SeaFightField::CELL_MISS;
         field->getStatesOfCells()->insert(cell_number, sea_fight_status);
+    }
+}
+
+void Model::gameEndCheck(){
+    if(_my_drown_ships == 10 || _enemies_drown_ships == 10){
+        SFcom::Status status = (_my_drown_ships) ? SFcom::Status::LOST : SFcom::Status::WON;
+        QJsonObject json_obj = SFcom::createJsonCommand(SFcom::Commands::END, status);
+        commandToView(json_obj);
     }
 }
 
@@ -157,6 +169,7 @@ void Model::disconnectFromPeer(QJsonObject json_obj){
     json_obj["payload"] = QJsonObject{{"phase", _game_phase}};
     _connection_status = SFcom::ConnectionType::NOCONN;
     _game_phase = SFcom::GamePhase::CONNECTION;
+    _my_drown_ships = _enemies_drown_ships = 0;
     emit commandToView(json_obj);
 }
 
@@ -262,4 +275,5 @@ void Model::peerStrike(QJsonObject obj){
     updateField(cell_number, strike_result, !my_request);
     obj["payload"] = QJsonObject{{"my_request", my_request}};
     commandToView(obj);
+    gameEndCheck();
 }

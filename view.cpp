@@ -116,6 +116,8 @@ void View::commandFromModel(QJsonObject json_obj){
     }
     else if(json_obj["command"] == SFcom::Commands::STRIKE){
         strikeResult(json_obj);
+    }else if(json_obj["command"] == SFcom::Commands::END){
+        gameEnd(json_obj);
     }
 }
 
@@ -179,7 +181,7 @@ void View::enemyFieldMousePressed(int cell_number){
 }
 
 bool View::strikeValid(int cell_number){
-    return true;
+    return (_enemies_fight_field->getStatesOfCells()->value(cell_number)) ? false : true;
 }
 
 void View::letUsPlayNotify(QJsonObject json_obj){
@@ -235,4 +237,8 @@ void View::strikeResult(QJsonObject obj){
     _my_turn = ((turn && my_request) || (!turn && !my_request));
     toggleBattleStateLabel(_my_turn, "");
     highlightField();
+}
+
+void View::gameEnd(QJsonObject obj){
+    qDebug()<<obj;
 }

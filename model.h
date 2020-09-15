@@ -41,6 +41,7 @@ private:
     QString getPeerIp();
     SFcom::Status strikeCheck(int cell_number);
     void updateField(int cell_number, SFcom::Status strike_status, bool my_field);
+    void gameEndCheck();
 
     void viewLetUsPlay(QJsonObject);
     void viewReady(QJsonObject);
@@ -56,6 +57,8 @@ private:
     QTcpSocket *_client_socket;
     int _connection_status;
     int _game_phase;
+    int _my_drown_ships;
+    int _enemies_drown_ships;
     quint16 _next_block_size;
     QPair<QUuid, QUuid> _move_indicator;
 

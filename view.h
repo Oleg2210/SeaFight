@@ -52,6 +52,7 @@ private:
     void letUsPlayNotify(QJsonObject);
     void readinessCheck(QJsonObject);
     void strikeResult(QJsonObject);
+    void gameEnd(QJsonObject);
     void toggleBattleStateLabel(bool ready_state, QString label_text);
     bool strikeValid(int cell_number);
     inline void highlightField(){
