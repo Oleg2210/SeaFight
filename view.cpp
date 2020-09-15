@@ -240,5 +240,8 @@ void View::strikeResult(QJsonObject obj){
 }
 
 void View::gameEnd(QJsonObject obj){
-    qDebug()<<obj;
+    _enemies_fight_field->setDisabled(true);
+    bool state = (obj["status"] == SFcom::Status::WON) ? true : false;
+    QString state_string = (state) ? "won!" : "lost!";
+    toggleBattleStateLabel(state, "You "+state_string);
 }
